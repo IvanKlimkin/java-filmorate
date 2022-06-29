@@ -6,7 +6,6 @@ import com.google.gson.reflect.TypeToken;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -14,17 +13,17 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.yandex.practicum.filmorate.adapter.LocalDateAdapter;
 import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @WebMvcTest(controllers = UserController.class)
-public class UserControllerTests {
+class UserControllerTests {
     private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .serializeNulls()
@@ -75,7 +74,6 @@ public class UserControllerTests {
             .build();
 
     private final UserForTest User1 = UserForTest.builder()
-            .id(105)
             .email("partizan@ya.ru")
             .login("Login")
             .name("Valera")
@@ -83,7 +81,7 @@ public class UserControllerTests {
             .build();
 
     private final UserForTest User2 = UserForTest.builder()
-            .id(106)
+            .id(1)
             .email("partizan@ya.ru")
             .login("Privet")
             .name("Ivan")
@@ -148,15 +146,6 @@ public class UserControllerTests {
                 }.getType());
         assertTrue(returnedUser.getName().equals("Valera"));
 
-        response = mockMvc.perform(MockMvcRequestBuilders.post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(gson.toJson(User1)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andReturn();
-
-        message = response.getResponse().getContentAsString();
-        assertTrue(message.equals("Такой пользователь уже добавлен"));
-
         response = mockMvc.perform(MockMvcRequestBuilders.get("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -166,7 +155,7 @@ public class UserControllerTests {
         List<User> returnedUsers = gson.fromJson(response.getResponse().getContentAsString(),
                 new TypeToken<ArrayList<User>>() {
                 }.getType());
-        assertTrue(returnedUsers.size() == 1);
+        assertEquals(1, returnedUsers.size());
 
         response = mockMvc.perform(MockMvcRequestBuilders.put("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -177,7 +166,7 @@ public class UserControllerTests {
         returnedUser = gson.fromJson(response.getResponse().getContentAsString(),
                 new TypeToken<User>() {
                 }.getType());
-        assertTrue(returnedUser.getName().equals("Ivan"));
+        assertEquals("Ivan", returnedUser.getName());
 
         response = mockMvc.perform(MockMvcRequestBuilders.get("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -188,7 +177,7 @@ public class UserControllerTests {
         returnedUsers = gson.fromJson(response.getResponse().getContentAsString(),
                 new TypeToken<ArrayList<User>>() {
                 }.getType());
-        assertTrue(returnedUsers.size() == 1);
-    }
+        assertEquals(1, returnedUsers.size());
 
+    }
 }

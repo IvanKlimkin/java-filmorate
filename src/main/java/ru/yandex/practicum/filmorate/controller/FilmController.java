@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.ServerException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -17,8 +17,8 @@ import java.util.TreeMap;
 @Slf4j
 @RequestMapping("/films")
 public class FilmController {
-    private final Map<String, Film> films = new TreeMap<>();
-    int id = 0;
+    private final Map<Integer, Film> films = new TreeMap<>();
+    private int id = 0;
 
     @GetMapping
     public List<Film> findAll() {
@@ -32,39 +32,31 @@ public class FilmController {
 
     @PostMapping
     public Film create(@RequestBody @Valid Film film)throws ValidationException {
-            if (films.containsKey(film.getName())) {
-                throw new ValidationException("Такой фильм уже добавлен");
-            }
-            else if(film.getName().equals(null)||film.getName().equals("")){
-                throw new ValidationException("Отсутствет название фильма");
-            }
-            else if(film.getDescription().length()>199){
-                throw new ValidationException("Слишком длинное описание фильма");
-            }
-            else if(film.getReleaseDate().isBefore(LocalDate.of(1895,12,28))){
-                throw new ValidationException("Дата релиза раньше 28 декабря 1895 года");
-            }
-            film.setId(1);
-            films.put(film.getName(), film);
-            log.debug("Добавлен фильм {}",film.getName());
+        validate(film);
+        film.setId(++id);
+        films.put(film.getId(), film);
+        log.debug("Добавлен фильм {}", film.getName());
             return film;
+    }
+
+    private void validate(Film film) {
+        if (film.getName().isEmpty()) {
+            throw new ValidationException("Отсутствет название фильма");
+        } else if (film.getDescription().length() > 199) {
+            throw new ValidationException("Слишком длинное описание фильма");
+        } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            throw new ValidationException("Дата релиза раньше 28 декабря 1895 года");
+        }
     }
 
     @PutMapping
-    public Film createPut(@RequestBody @Valid Film film)throws ValidationException {
-            if(film.getName().equals(null)||film.getName().equals("")){
-                throw new ValidationException("Отсутствет название фильма");
-            }
-            else if(film.getDescription().length()>199){
-                throw new ValidationException("Слишком длинное описание фильма");
-            }
-            else if(film.getReleaseDate().isBefore(LocalDate.of(1895,12,28))){
-                throw new ValidationException("Дата релиза раньше 28 декабря 1895 года");
-            }
-            films.put(film.getName(), film);
-            log.debug("Обновлен фильм {}",film.getName());
-            return film;
+    public Film update(@RequestBody @Valid Film film) throws ValidationException {
+        validate(film);
+        if (!films.containsKey(film.getId())) {
+            throw new ServerException("Фильм с таким ID не найден");
+        }
+        films.put(film.getId(), film);
+        log.debug("Обновлен фильм {}", film.getName());
+        return film;
     }
-
-
 }

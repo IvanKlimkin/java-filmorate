@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 @Builder
 class FilmForTest {
-    public final int id;
+    public final Integer id;
     public final String name;
     public final String description;
     public final LocalDate releaseDate;

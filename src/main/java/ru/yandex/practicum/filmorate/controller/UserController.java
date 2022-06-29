@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ServerException;
@@ -9,7 +8,10 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @RestController
     @Slf4j
@@ -31,41 +33,34 @@ import java.util.*;
 
         @PostMapping
         public User create(@RequestBody @Valid User user)throws ValidationException {
-                if (users.containsKey(user.getEmail())) {
-                    throw new ValidationException("Такой пользователь уже добавлен");
-                }
-                else if(user.getEmail().equals(null)||user.getEmail().equals("")){
-                    throw new ValidationException("Отсутствет адрес электронной почты");
-                }
-                else if(StringUtils.containsWhitespace(user.getLogin())) {
-                    throw new ValidationException("Логин не может содержать пробелы");
-                }
-                user.setId(++id);
-                users.put(user.getId(), user);
-                if(user.getName().equals(null) || user.getName().equals("")){
-                    log.debug("Сохранен пользователь {}",user.getLogin());
-                }
-                else log.debug("Сохранен пользователь {}",user.getName());
-                return user;
+            User validUser = validate(user);
+            validUser.setId(++id);
+            users.put(validUser.getId(), validUser);
+            log.debug("Сохранен пользователь {}", validUser.getName());
+            return validUser;
         }
 
-        @PutMapping
-        public User createPut(@RequestBody @Valid User user)throws ValidationException {
-                if(user.getEmail().equals(null)||user.getEmail().equals("")){
-                    throw new ValidationException("Отсутствет адрес электронной почты");
-                }
-                else if(StringUtils.containsWhitespace(user.getLogin())) {
-                    throw new ValidationException("Логин не может быть пустым и содержать пробелы");
-                }
-                if(!users.containsKey(user.getId())){
-                    throw new ServerException("Пользователя с таким ID не найдено");
-                }
-                users.put(user.getId(), user);
-                if(user.getName().equals(null) || user.getName().equals("")){
-                    log.debug("Сохранен пользователь {}",user.getLogin());
-                }
-                else log.debug("Сохранен пользователь {}",user.getName());
-                return user;
+    private User validate(User user) {
+        if (user.getEmail().isEmpty()) {
+            throw new ValidationException("Отсутствет адрес электронной почты");
+        } else if (StringUtils.containsWhitespace(user.getLogin())) {
+            throw new ValidationException("Логин не может содержать пробелы");
         }
-
+        if (user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+        }
+        return user;
     }
+
+    @PutMapping
+    public User update(@RequestBody @Valid User user) throws ValidationException {
+        User validUser = validate(user);
+        if (!users.containsKey(validUser.getId())) {
+            throw new ServerException("Пользователя с таким ID не найдено");
+        }
+        users.put(validUser.getId(), validUser);
+        log.debug("Сохранен пользователь {}", user.getName());
+        return user;
+    }
+
+}
