@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -89,6 +90,7 @@ class UserControllerTests {
             .build();
 
     @Test
+    @DisplayName("Тест добавления не корректного пользователя без почты")
     void checkAddNoEmailUser() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -101,6 +103,7 @@ class UserControllerTests {
     }
 
     @Test
+    @DisplayName("Тест добавления не корректного пользователя с не корректным форматом почты")
     void checkAddBadEmailFormatUser() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -113,6 +116,7 @@ class UserControllerTests {
     }
 
     @Test
+    @DisplayName("Тест добавления не корректного фильма по полю Login(пустой)")
     void checkAddNoLoginUser() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -125,6 +129,7 @@ class UserControllerTests {
     }
 
     @Test
+    @DisplayName("Тест добавления не корректного фильма по полю Login(с пробелами)")
     void checkAddNoLoginFillUser() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -137,6 +142,7 @@ class UserControllerTests {
     }
 
     @Test
+    @DisplayName("Тест добавления не корректного пользователя с датой из будущего")
     void checkAddUserFromFuture() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -149,6 +155,7 @@ class UserControllerTests {
     }
 
     @Test
+    @DisplayName("Тест добавления корректного пользователя и сравнение по запросу GET")
     void checkAddAndGetGoodUser() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -174,6 +181,7 @@ class UserControllerTests {
     }
 
     @Test
+    @DisplayName("Тест обновления корректного пользователя и сравнение по запросу GET")
     void checkUpdateAndGetGoodUser() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.put("/users")
                         .contentType(MediaType.APPLICATION_JSON)

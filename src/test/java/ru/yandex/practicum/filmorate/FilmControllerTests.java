@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -81,6 +82,7 @@ class FilmControllerTests {
             .build();
 
     @Test
+    @DisplayName("Тест добавления не корректного фильма по полю Name")
     void checkAddFilm() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -93,6 +95,7 @@ class FilmControllerTests {
     }
 
     @Test
+    @DisplayName("Тест добавления не корректного фильма с очень длинным описанием(более 200 символов)")
     void checkAddLongDescriptionFilm() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -105,6 +108,7 @@ class FilmControllerTests {
     }
 
     @Test
+    @DisplayName("Тест добавления не корректного фильма по полю Date")
     void checkAddVeryOldFilm() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -117,6 +121,7 @@ class FilmControllerTests {
     }
 
     @Test
+    @DisplayName("Тест добавления не корректного фильма с отрицательной длительностью")
     void checkAddnegativeDurationFilm() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -129,6 +134,7 @@ class FilmControllerTests {
     }
 
     @Test
+    @DisplayName("Тест добавления корректного фильма и сравнение по запросу GET")
     void checkAddAndGetGoodFilm() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -141,10 +147,7 @@ class FilmControllerTests {
                 }.getType());
         assertTrue(returnedFilm.getName().equals("Film 1"));
         assertTrue(returnedFilm.getDescription().equals("Film 1 added"));
-   /* }
 
-    @Test
-    void checkGetGoodFilm() throws Exception {*/
         response = mockMvc.perform(MockMvcRequestBuilders.get("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -157,6 +160,7 @@ class FilmControllerTests {
     }
 
     @Test
+    @DisplayName("Тест обновления корректного фильма и сравнение по запросу GET")
     void checkUpdateFilm() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.put("/films")
                         .contentType(MediaType.APPLICATION_JSON)

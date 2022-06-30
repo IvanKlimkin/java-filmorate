@@ -17,7 +17,9 @@ import java.time.LocalDate;
 @Builder
 public class User {
     private Integer id;
-    @NotNull @NotBlank(message = "Email не должен быть пустым") @Email(message = "Email должен быть корректным")
+    @NotNull(message = "Email не должен быть пустым")
+    @NotBlank(message = "Email не должен быть пустым")
+    @Email(message = "Email должен быть корректным")
     private final String email;
     @NotNull
     @NotBlank(message = "Логин не должен быть пустым")

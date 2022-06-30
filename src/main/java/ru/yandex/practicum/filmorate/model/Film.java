@@ -13,7 +13,8 @@ import java.time.LocalDate;
 @Builder
 public class Film {
     private Integer id;
-    @NotNull @NotBlank(message = "Необходимо задать имя")
+    @NotNull(message = "Необходимо задать имя")
+    @NotBlank(message = "Необходимо задать имя")
     private final String name;
     private final String description;
     private final LocalDate releaseDate;
