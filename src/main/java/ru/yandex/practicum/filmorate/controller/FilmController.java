@@ -22,21 +22,21 @@ public class FilmController {
 
     @GetMapping
     public List<Film> findAll() {
-        List <Film>filmNames = new ArrayList<>();
-        for(Film film : films.values()){
+        List<Film> filmNames = new ArrayList<>();
+        for (Film film : films.values()) {
             filmNames.add(film);
         }
-        log.debug("Количество фильмов {}",filmNames.size());
+        log.debug("Количество фильмов {}", filmNames.size());
         return filmNames;
     }
 
     @PostMapping
-    public Film create(@RequestBody @Valid Film film)throws ValidationException {
+    public Film create(@RequestBody @Valid Film film) throws ValidationException {
         validate(film);
         film.setId(++id);
         films.put(film.getId(), film);
         log.debug("Добавлен фильм {}", film.getName());
-            return film;
+        return film;
     }
 
     private void validate(Film film) {

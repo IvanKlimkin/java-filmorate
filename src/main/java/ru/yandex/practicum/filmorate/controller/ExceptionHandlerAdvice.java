@@ -22,7 +22,4 @@ public class ExceptionHandlerAdvice {
         log.error(e.getMessage());
         return ResponseEntity.internalServerError().body(e.getMessage());
     }
-
-
-
 }

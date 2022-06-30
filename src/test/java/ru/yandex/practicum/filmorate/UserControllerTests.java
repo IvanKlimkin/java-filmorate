@@ -31,7 +31,7 @@ class UserControllerTests {
             .create();
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     private final UserForTest noEmailUser = UserForTest.builder()
             .id(100)
@@ -65,7 +65,7 @@ class UserControllerTests {
             .birthday(LocalDate.of(1990, 12, 10))
             .build();
 
-    private final UserForTest UserFromFuture = UserForTest.builder()
+    private final UserForTest userFromFuture = UserForTest.builder()
             .id(104)
             .email("ya@ya.ru")
             .login("Terminator")
@@ -73,14 +73,14 @@ class UserControllerTests {
             .birthday(LocalDate.of(2222, 12, 10))
             .build();
 
-    private final UserForTest User1 = UserForTest.builder()
+    private final UserForTest user1 = UserForTest.builder()
             .email("partizan@ya.ru")
             .login("Login")
             .name("Valera")
             .birthday(LocalDate.of(1990, 12, 10))
             .build();
 
-    private final UserForTest User2 = UserForTest.builder()
+    private final UserForTest user2 = UserForTest.builder()
             .id(1)
             .email("partizan@ya.ru")
             .login("Privet")
@@ -89,7 +89,7 @@ class UserControllerTests {
             .build();
 
     @Test
-    void checkAddUser() throws Exception {
+    void checkAddNoEmailUser() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(gson.toJson(noEmailUser)))
@@ -98,46 +98,61 @@ class UserControllerTests {
 
         String message = response.getResolvedException().getMessage();
         assertTrue(message.contains("default message [Email не должен быть пустым]"));
+    }
 
-        response = mockMvc.perform(MockMvcRequestBuilders.post("/users")
+    @Test
+    void checkAddBadEmailFormatUser() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(gson.toJson(badEmailFormatUser)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andReturn();
 
-        message = response.getResolvedException().getMessage();
+        String message = response.getResolvedException().getMessage();
         assertTrue(message.contains("default message [Email должен быть корректным]"));
+    }
 
-        response = mockMvc.perform(MockMvcRequestBuilders.post("/users")
+    @Test
+    void checkAddNoLoginUser() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(gson.toJson(noLoginUser)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andReturn();
 
-        message = response.getResolvedException().getMessage();
+        String message = response.getResolvedException().getMessage();
         assertTrue(message.contains("default message [Логин не должен быть пустым]"));
+    }
 
-        response = mockMvc.perform(MockMvcRequestBuilders.post("/users")
+    @Test
+    void checkAddNoLoginFillUser() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(gson.toJson(noLoginFillUser)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andReturn();
 
-        message = response.getResponse().getContentAsString();
+        String message = response.getResponse().getContentAsString();
         assertTrue(message.equals("Логин не может содержать пробелы"));
+    }
 
-        response = mockMvc.perform(MockMvcRequestBuilders.post("/users")
+    @Test
+    void checkAddUserFromFuture() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(gson.toJson(UserFromFuture)))
+                        .content(gson.toJson(userFromFuture)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andReturn();
 
-        message = response.getResolvedException().getMessage();
+        String message = response.getResolvedException().getMessage();
         assertTrue(message.contains("default message [День рожденья должен быть раньше текущей даты]"));
+    }
 
-        response = mockMvc.perform(MockMvcRequestBuilders.post("/users")
+    @Test
+    void checkAddAndGetGoodUser() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(gson.toJson(User1)))
+                        .content(gson.toJson(user1)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
 
@@ -156,14 +171,17 @@ class UserControllerTests {
                 new TypeToken<ArrayList<User>>() {
                 }.getType());
         assertEquals(1, returnedUsers.size());
+    }
 
-        response = mockMvc.perform(MockMvcRequestBuilders.put("/users")
+    @Test
+    void checkUpdateAndGetGoodUser() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.put("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(gson.toJson(User2)))
+                        .content(gson.toJson(user2)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
 
-        returnedUser = gson.fromJson(response.getResponse().getContentAsString(),
+        User returnedUser = gson.fromJson(response.getResponse().getContentAsString(),
                 new TypeToken<User>() {
                 }.getType());
         assertEquals("Ivan", returnedUser.getName());
@@ -174,7 +192,7 @@ class UserControllerTests {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
 
-        returnedUsers = gson.fromJson(response.getResponse().getContentAsString(),
+        List<User> returnedUsers = gson.fromJson(response.getResponse().getContentAsString(),
                 new TypeToken<ArrayList<User>>() {
                 }.getType());
         assertEquals(1, returnedUsers.size());

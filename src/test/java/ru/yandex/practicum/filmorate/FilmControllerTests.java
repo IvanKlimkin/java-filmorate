@@ -30,7 +30,7 @@ class FilmControllerTests {
             .create();
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     private final FilmForTest noNameFilm = FilmForTest.builder()
             .id(1)
@@ -59,7 +59,7 @@ class FilmControllerTests {
             .releaseDate(LocalDate.of(1885, 12, 10))
             .duration(120)
             .build();
-    private final FilmForTest negativeDescriptionFilm = FilmForTest.builder()
+    private final FilmForTest negativeDurationFilm = FilmForTest.builder()
             .id(4)
             .name("Film Negative")
             .description("Film has negative duration")
@@ -90,35 +90,47 @@ class FilmControllerTests {
 
         String message = response.getResolvedException().getMessage();
         assertTrue(message.contains("default message [Необходимо задать имя]"));
+    }
 
-        response = mockMvc.perform(MockMvcRequestBuilders.post("/films")
+    @Test
+    void checkAddLongDescriptionFilm() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(gson.toJson(longDescriptionFilm)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andReturn();
 
-        message = response.getResponse().getContentAsString();
+        String message = response.getResponse().getContentAsString();
         assertTrue(message.equals("Слишком длинное описание фильма"));
+    }
 
-        response = mockMvc.perform(MockMvcRequestBuilders.post("/films")
+    @Test
+    void checkAddVeryOldFilm() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(gson.toJson(veryOldFilm)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andReturn();
 
-        message = response.getResponse().getContentAsString();
+        String message = response.getResponse().getContentAsString();
         assertTrue(message.equals("Дата релиза раньше 28 декабря 1895 года"));
+    }
 
-        response = mockMvc.perform(MockMvcRequestBuilders.post("/films")
+    @Test
+    void checkAddnegativeDurationFilm() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(gson.toJson(negativeDescriptionFilm)))
+                        .content(gson.toJson(negativeDurationFilm)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andReturn();
 
-        message = response.getResolvedException().getMessage();
+        String message = response.getResolvedException().getMessage();
         assertTrue(message.contains("Продолжительность должна быть положительной"));
+    }
 
-        response = mockMvc.perform(MockMvcRequestBuilders.post("/films")
+    @Test
+    void checkAddAndGetGoodFilm() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(gson.toJson(Film1)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -129,7 +141,10 @@ class FilmControllerTests {
                 }.getType());
         assertTrue(returnedFilm.getName().equals("Film 1"));
         assertTrue(returnedFilm.getDescription().equals("Film 1 added"));
+   /* }
 
+    @Test
+    void checkGetGoodFilm() throws Exception {*/
         response = mockMvc.perform(MockMvcRequestBuilders.get("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -139,14 +154,17 @@ class FilmControllerTests {
                 new TypeToken<ArrayList<Film>>() {
                 }.getType());
         assertTrue(returnedFilms.size() == 1);
+    }
 
-        response = mockMvc.perform(MockMvcRequestBuilders.put("/films")
+    @Test
+    void checkUpdateFilm() throws Exception {
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.put("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(gson.toJson(Film2)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
 
-        returnedFilm = gson.fromJson(response.getResponse().getContentAsString(),
+        Film returnedFilm = gson.fromJson(response.getResponse().getContentAsString(),
                 new TypeToken<Film>() {
                 }.getType());
         assertTrue(returnedFilm.getName().equals("Film 1"));
@@ -157,12 +175,12 @@ class FilmControllerTests {
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
-        returnedFilms = gson.fromJson(response.getResponse().getContentAsString(),
+        List<Film> returnedFilms = gson.fromJson(response.getResponse().getContentAsString(),
                 new TypeToken<ArrayList<Film>>() {
                 }.getType());
         assertTrue(returnedFilms.size() == 1);
-
     }
 }
+
 
 
