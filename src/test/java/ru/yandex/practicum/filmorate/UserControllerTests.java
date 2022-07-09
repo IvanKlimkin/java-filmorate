@@ -30,10 +30,6 @@ class UserControllerTests {
             .serializeNulls()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
             .create();
-
-    @Autowired
-    private MockMvc mockMvc;
-
     private final UserForTest noEmailUser = UserForTest.builder()
             .id(100)
             .email("")
@@ -41,7 +37,6 @@ class UserControllerTests {
             .name("Name 100")
             .birthday(LocalDate.of(1990, 12, 10))
             .build();
-
     private final UserForTest badEmailFormatUser = UserForTest.builder()
             .id(100)
             .email("karAPUZru.ya")
@@ -49,7 +44,6 @@ class UserControllerTests {
             .name("Name 101")
             .birthday(LocalDate.of(1990, 12, 10))
             .build();
-
     private final UserForTest noLoginUser = UserForTest.builder()
             .id(102)
             .email("ya@ya.ru")
@@ -57,7 +51,6 @@ class UserControllerTests {
             .name("Name 102")
             .birthday(LocalDate.of(1990, 12, 10))
             .build();
-
     private final UserForTest noLoginFillUser = UserForTest.builder()
             .id(103)
             .email("ya@ya.ru")
@@ -65,7 +58,6 @@ class UserControllerTests {
             .name("Name 103")
             .birthday(LocalDate.of(1990, 12, 10))
             .build();
-
     private final UserForTest userFromFuture = UserForTest.builder()
             .id(104)
             .email("ya@ya.ru")
@@ -73,14 +65,12 @@ class UserControllerTests {
             .name("Name 104")
             .birthday(LocalDate.of(2222, 12, 10))
             .build();
-
     private final UserForTest user1 = UserForTest.builder()
             .email("partizan@ya.ru")
             .login("Login")
             .name("Valera")
             .birthday(LocalDate.of(1990, 12, 10))
             .build();
-
     private final UserForTest user2 = UserForTest.builder()
             .id(1)
             .email("partizan@ya.ru")
@@ -88,6 +78,8 @@ class UserControllerTests {
             .name("Ivan")
             .birthday(LocalDate.of(1990, 12, 10))
             .build();
+    @Autowired
+    private MockMvc mockMvc;
 
     @Test
     @DisplayName("Тест добавления не корректного пользователя без почты")

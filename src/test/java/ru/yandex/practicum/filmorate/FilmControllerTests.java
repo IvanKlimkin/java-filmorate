@@ -29,10 +29,6 @@ class FilmControllerTests {
             .serializeNulls()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
             .create();
-
-    @Autowired
-    private MockMvc mockMvc;
-
     private final FilmForTest noNameFilm = FilmForTest.builder()
             .id(1)
             .name("")
@@ -80,6 +76,8 @@ class FilmControllerTests {
             .releaseDate(LocalDate.of(1997, 12, 10))
             .duration(120)
             .build();
+    @Autowired
+    private MockMvc mockMvc;
 
     @Test
     @DisplayName("Тест добавления не корректного фильма по полю Name")

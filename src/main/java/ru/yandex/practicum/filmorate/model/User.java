@@ -10,13 +10,14 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @Builder
 public class User {
-    private Integer id;
     @NotNull(message = "Email не должен быть пустым")
     @NotBlank(message = "Email не должен быть пустым")
     @Email(message = "Email должен быть корректным")
@@ -24,7 +25,31 @@ public class User {
     @NotNull
     @NotBlank(message = "Логин не должен быть пустым")
     private final String login;
-    private String name;
-    @PastOrPresent(message = "День рожденья должен быть раньше текущей даты")
+    @PastOrPresent(message = "День рождения должен быть раньше текущей даты")
     private final LocalDate birthday;
+    private Integer id;
+    private String name;
+    private Set<Integer> friends;
+
+    public void addFriend(Integer friendID) {
+        if (friends != null) {
+            friends.add(friendID);
+        } else {
+            friends = new HashSet<>();
+            friends.add(friendID);
+        }
+    }
+
+    public void deleteFriend(Integer friendID) {
+        if (friends != null) {
+            friends.remove(friendID);
+        }
+    }
+
+    public Set<Integer> getFriends() {
+        if (friends != null) {
+            return friends;
+        } else return Set.of();
+    }
+
 }
