@@ -7,7 +7,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -15,6 +17,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.yandex.practicum.filmorate.adapter.LocalDateAdapter;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -22,7 +26,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@WebMvcTest(controllers = FilmController.class)
+//@WebMvcTest(controllers = FilmController.class)
+@SpringBootTest
 class FilmControllerTests {
     private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
@@ -78,6 +83,10 @@ class FilmControllerTests {
             .build();
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private FilmService filmService;
+    @Autowired
+    private FilmStorage filmStorage;
 
     @Test
     @DisplayName("Тест добавления не корректного фильма по полю Name")
