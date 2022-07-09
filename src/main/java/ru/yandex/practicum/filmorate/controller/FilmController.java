@@ -16,7 +16,7 @@ import java.util.List;
 public class FilmController {
     private FilmService filmService;
 
-    @Autowired
+    //@Autowired
     public FilmController(FilmService filmService) {
         this.filmService = filmService;
     }
