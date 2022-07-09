@@ -26,7 +26,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-//@WebMvcTest(controllers = FilmController.class)
+/*
+@WebMvcTest(controllers = FilmController.class)
 @SpringBootTest
 class FilmControllerTests {
     private static final Gson gson = new GsonBuilder()
@@ -195,3 +196,4 @@ class FilmControllerTests {
 
 
 
+*/
