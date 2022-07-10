@@ -8,13 +8,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.ServerException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
+import javax.validation.ConstraintViolationException;
+
 @Slf4j
 @RestControllerAdvice
 public class ExceptionHandlerAdvice {
 
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleException(ValidationException e) {
+    public String handleValidationException(ValidationException e) {
         log.error(e.getMessage());
         return e.getMessage();
     }
@@ -30,6 +32,13 @@ public class ExceptionHandlerAdvice {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleException(Throwable e) {
         log.error(e.getLocalizedMessage());
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleConstraintException(ConstraintViolationException e){
+        log.error(e.getMessage());
         return e.getMessage();
     }
 }

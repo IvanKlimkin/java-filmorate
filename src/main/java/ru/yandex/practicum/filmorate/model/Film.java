@@ -17,9 +17,9 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class Film {
-    @NotNull(message = "Необходимо задать имя")
     @NotBlank(message = "Необходимо задать имя")
     private final String name;
+    @NotBlank(message = "Необходимо задать описание")
     private final String description;
     private final LocalDate releaseDate;
     @PositiveOrZero(message = "Продолжительность должна быть положительной")
@@ -36,9 +36,9 @@ public class Film {
         }
     }
 
-    public void deleteLike(Integer filmID) {
+    public void deleteLike(Integer userID) {
         if (likedUsersID != null) {
-            likedUsersID.remove(filmID);
+            likedUsersID.remove(userID);
         }
     }
 

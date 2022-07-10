@@ -2,13 +2,9 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.ServerException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -17,21 +13,12 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public List<Film> getAllFilms() {
-        List<Film> filmNames = new ArrayList<>();
-        for (Film film : films.values()) {
-            filmNames.add(film);
-        }
-        log.debug("Количество фильмов {}", filmNames.size());
-        return filmNames;
+        return new ArrayList<>(List.copyOf(films.values()));
     }
 
     @Override
-    public Film getFilmByID(Integer ID) {
-        return films.values().stream()
-                .filter(p -> p.getId().equals(ID))
-                .findFirst()
-                .orElseThrow(() -> new ServerException(String.format("Фильм с ID=%d не найден",
-                        ID)));
+    public Optional<Film> getFilmByID(Integer ID) {
+        return Optional.ofNullable(films.get(ID));
     }
 
     @Override

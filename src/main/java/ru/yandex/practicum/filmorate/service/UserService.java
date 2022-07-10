@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,10 +23,6 @@ public class UserService {
         return userStorage.getAllUsers();
     }
 
-    public User getUser(Integer id) {
-        return userStorage.getUserByID(id);
-    }
-
     public User createUser(User user) {
         User validUser = validate(user);
         validUser.setId(++id);
@@ -36,25 +31,28 @@ public class UserService {
     }
 
     private User validate(User user) {
-        if (user.getEmail().isEmpty()) {
-            throw new ValidationException("Отсутствет адрес электронной почты");
-        } else if (StringUtils.containsWhitespace(user.getLogin())) {
+        if (StringUtils.containsWhitespace(user.getLogin())) {
             throw new ValidationException("Логин не может содержать пробелы");
         }
-        if (user.getName().isEmpty()) {
-            user.setName(user.getLogin());
+        if (user.getName() != null) {
+            if (user.getName().isBlank()) {
+                user.setName(user.getLogin());
+            }
         }
         return user;
     }
 
     public User updateUser(User user) {
         User validUser = validate(user);
-        if (Objects.equals(userStorage.getUserByID(validUser.getId()), null)) {
-            throw new ServerException(String.format("Пользователь с ID=%d не найден",
-                    user.getId()));
-        }
+        getUser(user.getId());
         userStorage.updateUser(validUser);
         return validUser;
+    }
+
+    public User getUser(Integer id) {
+        return userStorage.getUserByID(id).orElseThrow(
+                () -> new ServerException(String.format("Пользователь с ID=%d не найден",
+                        id)));
     }
 
     public void deleteUser(User user) {
@@ -62,17 +60,16 @@ public class UserService {
     }
 
     public void addToFriends(Integer userID, Integer friendID) {
-        if (userStorage.getUserByID(userID) != null && userStorage.getUserByID(friendID) != null) {
-            userStorage.getUserByID(userID).addFriend(friendID);
-            userStorage.getUserByID(friendID).addFriend(userID);
-
+        if (getUser(userID) != null && getUser(friendID) != null) {
+            getUser(userID).addFriend(friendID);
+            getUser(friendID).addFriend(userID);
         }
     }
 
     public void deleteFromFriends(Integer userID, Integer friendID) {
-        if (userStorage.getUserByID(userID) != null && userStorage.getUserByID(friendID) != null) {
-            userStorage.getUserByID(userID).deleteFriend(friendID);
-            userStorage.getUserByID(friendID).deleteFriend(userID);
+        if (getUser(userID) != null && getUser(friendID) != null) {
+            getUser(userID).deleteFriend(friendID);
+            getUser(friendID).deleteFriend(userID);
         }
     }
 
@@ -86,9 +83,8 @@ public class UserService {
     }
 
     public List<User> getUserFriends(Integer userID) {
-        return userStorage.getUserByID(userID).getFriends().stream()
-                .map(p -> userStorage.getUserByID(p))
+        return getUser(userID).getFriends().stream()
+                .map(p -> getUser(p))
                 .collect(Collectors.toList());
-
     }
 }

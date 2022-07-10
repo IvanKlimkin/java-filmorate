@@ -4,12 +4,13 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public interface FilmStorage {
     List<Film> getAllFilms();
 
-    Film getFilmByID(Integer ID);
+    Optional<Film> getFilmByID(Integer ID);
 
     void createFilm(Film film);
 

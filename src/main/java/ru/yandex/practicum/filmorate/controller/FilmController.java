@@ -1,13 +1,14 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
@@ -50,8 +51,9 @@ public class FilmController {
         filmService.deleteLike(userId, id);
     }
 
+    @Validated
     @GetMapping("/popular")
-    public List<Film> getMostLikedfilms(@RequestParam(defaultValue = "10") Integer count) {
+    public List<Film> getMostLikedfilms(@RequestParam(defaultValue = "10")@Positive Integer count) {
         return filmService.getMostLikedFilms(count);
     }
 

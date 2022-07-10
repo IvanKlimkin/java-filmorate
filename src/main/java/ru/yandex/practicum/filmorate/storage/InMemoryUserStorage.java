@@ -2,13 +2,9 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.ServerException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -17,21 +13,12 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public List<User> getAllUsers() {
-        List<User> userVal = new ArrayList<>();
-        for (User user : users.values()) {
-            userVal.add(user);
-        }
-        log.debug("Количество пользователей {}", userVal.size());
-        return userVal;
+        return new ArrayList<>(List.copyOf(users.values()));
     }
 
     @Override
-    public User getUserByID(Integer ID) {
-        return users.values().stream()
-                .filter(p -> p.getId().equals(ID))
-                .findFirst()
-                .orElseThrow(() -> new ServerException(String.format("Пользователь с ID=%d не найден",
-                        ID)));
+    public Optional<User> getUserByID(Integer ID) {
+        return Optional.ofNullable(users.get(ID));
     }
 
     @Override
