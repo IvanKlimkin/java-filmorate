@@ -14,6 +14,7 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequestMapping("/films")
+@Validated
 public class FilmController {
     private final FilmService filmService;
 
@@ -51,9 +52,8 @@ public class FilmController {
         filmService.deleteLike(userId, id);
     }
 
-    @Validated
     @GetMapping("/popular")
-    public List<Film> getMostLikedfilms(@RequestParam(defaultValue = "10")@Positive Integer count) {
+    public List<Film> getMostLikedfilms(@RequestParam(defaultValue = "10") @Positive Integer count) {
         return filmService.getMostLikedFilms(count);
     }
 

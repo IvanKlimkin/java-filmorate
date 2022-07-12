@@ -34,9 +34,7 @@ public class FilmService {
     }
 
     private void validate(Film film) {
-        if (film.getDescription().length() > 199) {
-            throw new ValidationException("Слишком длинное описание фильма");
-        } else if (film.getReleaseDate().isBefore(START_DATE)) {
+        if (film.getReleaseDate().isBefore(START_DATE)) {
             throw new ValidationException("Дата релиза раньше 28 декабря 1895 года");
         }
     }
@@ -58,14 +56,11 @@ public class FilmService {
     }
 
     public void addLike(Integer userID, Integer filmID) {
-        if (userService.getUser(userID) != null) {
-            getFilm(filmID).addLike(userID);
-        }
+        getFilm(filmID).addLike(userID);
     }
 
     public void deleteLike(Integer userID, Integer filmID) {
-        if (userService.getUser(userID) != null)
-            getFilm(filmID).deleteLike(userID);
+        getFilm(filmID).deleteLike(userService.getUser(userID).getId());
     }
 
     public List<Film> getMostLikedFilms(Integer count) {

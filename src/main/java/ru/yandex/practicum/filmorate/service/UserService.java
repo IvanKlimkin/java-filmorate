@@ -34,10 +34,8 @@ public class UserService {
         if (StringUtils.containsWhitespace(user.getLogin())) {
             throw new ValidationException("Логин не может содержать пробелы");
         }
-        if (user.getName() != null) {
-            if (user.getName().isBlank()) {
-                user.setName(user.getLogin());
-            }
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
         }
         return user;
     }
@@ -60,17 +58,13 @@ public class UserService {
     }
 
     public void addToFriends(Integer userID, Integer friendID) {
-        if (getUser(userID) != null && getUser(friendID) != null) {
-            getUser(userID).addFriend(friendID);
-            getUser(friendID).addFriend(userID);
-        }
+        getUser(friendID).addFriend(userID);
+        getUser(userID).addFriend(friendID);
     }
 
     public void deleteFromFriends(Integer userID, Integer friendID) {
-        if (getUser(userID) != null && getUser(friendID) != null) {
-            getUser(userID).deleteFriend(friendID);
-            getUser(friendID).deleteFriend(userID);
-        }
+        getUser(userID).deleteFriend(friendID);
+        getUser(friendID).deleteFriend(userID);
     }
 
     public List<User> getCommonFriends(Integer userID, Integer otherID) {

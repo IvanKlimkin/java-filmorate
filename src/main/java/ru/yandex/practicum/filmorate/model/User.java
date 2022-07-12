@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.Email;
@@ -10,13 +9,14 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@Builder
+@RequiredArgsConstructor
 public class User {
     @NotNull(message = "Email не должен быть пустым")
     @NotBlank(message = "Email не должен быть пустым")
@@ -27,29 +27,21 @@ public class User {
     private final String login;
     @PastOrPresent(message = "День рождения должен быть раньше текущей даты")
     private final LocalDate birthday;
-    private Integer id;
+    private Integer id = 0;
     private String name;
-    private Set<Integer> friends;
+    private List<Integer> friends = new ArrayList<>();
 
     public void addFriend(Integer friendID) {
-        if (friends != null) {
-            friends.add(friendID);
-        } else {
-            friends = new HashSet<>();
-            friends.add(friendID);
-        }
+        friends.add(friendID);
     }
 
     public void deleteFriend(Integer friendID) {
-        if (friends != null) {
-            friends.remove(friendID);
-        }
+        friends.remove(friendID);
     }
 
     public Set<Integer> getFriends() {
-        if (friends != null) {
-            return friends;
-        } else return Set.of();
+        Set<Integer> friendsUniq = new HashSet<>(friends);
+        return friendsUniq;
     }
 
 }

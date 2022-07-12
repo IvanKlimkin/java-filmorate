@@ -37,7 +37,7 @@ public class ExceptionHandlerAdvice {
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleConstraintException(ConstraintViolationException e){
+    public String handleConstraintException(ConstraintViolationException e) {
         log.error(e.getMessage());
         return e.getMessage();
     }

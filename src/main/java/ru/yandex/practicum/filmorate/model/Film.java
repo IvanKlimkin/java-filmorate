@@ -1,50 +1,43 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@Builder
+@RequiredArgsConstructor
 public class Film {
     @NotBlank(message = "Необходимо задать имя")
     private final String name;
     @NotBlank(message = "Необходимо задать описание")
+    @Size(max = 200, message = "Слишком длинное описание фильма(Не более 200 символов)")
     private final String description;
     private final LocalDate releaseDate;
     @PositiveOrZero(message = "Продолжительность должна быть положительной")
     private final Integer duration;
-    private Integer id;
-    private Set<Integer> likedUsersID;
+    private Integer id = 0;
+    private List<Integer> likedUsersID = new ArrayList<>();
 
     public void addLike(Integer filmID) {
-        if (likedUsersID != null) {
-            likedUsersID.add(filmID);
-        } else {
-            likedUsersID = new HashSet<>();
-            likedUsersID.add(filmID);
-        }
+        likedUsersID.add(filmID);
     }
 
     public void deleteLike(Integer userID) {
-        if (likedUsersID != null) {
-            likedUsersID.remove(userID);
-        }
+        likedUsersID.remove(userID);
     }
 
     public Set<Integer> getLikedUsersID() {
-        if (likedUsersID != null) {
-            return likedUsersID;
-        } else return Set.of();
+        Set<Integer> likedUniq = new HashSet<>(likedUsersID);
+        return likedUniq;
     }
 }
