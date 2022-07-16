@@ -1,28 +1,6 @@
 package ru.yandex.practicum.filmorate;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import ru.yandex.practicum.filmorate.adapter.LocalDateAdapter;
-import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.model.User;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+/*
 @WebMvcTest(controllers = UserController.class)
 class UserControllerTests {
     private static final Gson gson = new GsonBuilder()
@@ -30,10 +8,6 @@ class UserControllerTests {
             .serializeNulls()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
             .create();
-
-    @Autowired
-    private MockMvc mockMvc;
-
     private final UserForTest noEmailUser = UserForTest.builder()
             .id(100)
             .email("")
@@ -41,7 +15,6 @@ class UserControllerTests {
             .name("Name 100")
             .birthday(LocalDate.of(1990, 12, 10))
             .build();
-
     private final UserForTest badEmailFormatUser = UserForTest.builder()
             .id(100)
             .email("karAPUZru.ya")
@@ -49,7 +22,6 @@ class UserControllerTests {
             .name("Name 101")
             .birthday(LocalDate.of(1990, 12, 10))
             .build();
-
     private final UserForTest noLoginUser = UserForTest.builder()
             .id(102)
             .email("ya@ya.ru")
@@ -57,7 +29,6 @@ class UserControllerTests {
             .name("Name 102")
             .birthday(LocalDate.of(1990, 12, 10))
             .build();
-
     private final UserForTest noLoginFillUser = UserForTest.builder()
             .id(103)
             .email("ya@ya.ru")
@@ -65,7 +36,6 @@ class UserControllerTests {
             .name("Name 103")
             .birthday(LocalDate.of(1990, 12, 10))
             .build();
-
     private final UserForTest userFromFuture = UserForTest.builder()
             .id(104)
             .email("ya@ya.ru")
@@ -73,14 +43,12 @@ class UserControllerTests {
             .name("Name 104")
             .birthday(LocalDate.of(2222, 12, 10))
             .build();
-
     private final UserForTest user1 = UserForTest.builder()
             .email("partizan@ya.ru")
             .login("Login")
             .name("Valera")
             .birthday(LocalDate.of(1990, 12, 10))
             .build();
-
     private final UserForTest user2 = UserForTest.builder()
             .id(1)
             .email("partizan@ya.ru")
@@ -88,6 +56,12 @@ class UserControllerTests {
             .name("Ivan")
             .birthday(LocalDate.of(1990, 12, 10))
             .build();
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private FilmService filmService;
+    @Autowired
+    private FilmStorage filmStorage;
 
     @Test
     @DisplayName("Тест добавления не корректного пользователя без почты")
@@ -207,3 +181,4 @@ class UserControllerTests {
 
     }
 }
+*/

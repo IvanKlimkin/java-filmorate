@@ -15,7 +15,7 @@ public class LocalDateAdapter extends TypeAdapter<LocalDate> {
 
     @Override
     public void write(JsonWriter jsonWriter, LocalDate localDate) throws IOException {
-        if (Objects.equals(localDate,null)){
+        if (Objects.equals(localDate, null)) {
             jsonWriter.value(String.valueOf(localDate));
             return;
         }
@@ -25,7 +25,7 @@ public class LocalDateAdapter extends TypeAdapter<LocalDate> {
     @Override
     public LocalDate read(JsonReader jsonReader) throws IOException {
         final String text = jsonReader.nextString();
-        if (Objects.equals(text,null)) {
+        if (Objects.equals(text, null)) {
             return null;
         }
         return LocalDate.parse(text, formatterReader);
