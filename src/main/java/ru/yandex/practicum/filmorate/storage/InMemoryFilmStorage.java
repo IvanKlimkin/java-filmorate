@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.*;
-
+/*
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -39,4 +39,4 @@ public class InMemoryFilmStorage implements FilmStorage {
         films.remove(film.getId());
     }
 
-}
+}*/

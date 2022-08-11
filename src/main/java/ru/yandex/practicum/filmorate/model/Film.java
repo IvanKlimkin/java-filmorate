@@ -1,43 +1,39 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(of = "id")
 public class Film {
+    private Integer id = 0;
     @NotBlank(message = "Необходимо задать имя")
-    private final String name;
+    private String name;
     @NotBlank(message = "Необходимо задать описание")
     @Size(max = 200, message = "Слишком длинное описание фильма(Не более 200 символов)")
-    private final String description;
-    private final LocalDate releaseDate;
+    private String description;
+    private LocalDate releaseDate;
     @PositiveOrZero(message = "Продолжительность должна быть положительной")
-    private final Integer duration;
-    private Integer id = 0;
-    private List<Integer> likedUsersID = new ArrayList<>();
+    private Integer duration;
+    @NotNull
+    private Mpa mpa;
+    private Set<Genre> genres;
 
-    public void addLike(Integer filmID) {
-        likedUsersID.add(filmID);
-    }
-
-    public void deleteLike(Integer userID) {
-        likedUsersID.remove(userID);
-    }
-
-    public Set<Integer> getLikedUsersID() {
-        Set<Integer> likedUniq = new HashSet<>(likedUsersID);
-        return likedUniq;
+    public Film(int filmID, String name, String description, LocalDate releaseDate, int duration, Mpa mpa) {
+        this.id = filmID;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.mpa = mpa;
     }
 }

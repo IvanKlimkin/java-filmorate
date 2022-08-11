@@ -10,9 +10,9 @@ import java.util.Optional;
 public interface FilmStorage {
     List<Film> getAllFilms();
 
-    Optional<Film> getFilmByID(Integer ID);
+    Optional<Film> getFilmByID(Integer Id);
 
-    void createFilm(Film film);
+    Film createFilm(Film film);
 
     void updateFilm(Film film);
 

@@ -24,7 +24,7 @@ public class FilmController {
 
     @GetMapping
     public List<Film> findAll() {
-        return filmService.getAllFilms();
+        return (List<Film>) filmService.getAllFilms();
     }
 
     @GetMapping("/{id}")
@@ -44,12 +44,12 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     public void likeFilm(@PathVariable Integer id, @PathVariable Integer userId) {
-        filmService.addLike(userId, id);
+        filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void dislikeFilm(@PathVariable Integer id, @PathVariable Integer userId) {
-        filmService.deleteLike(userId, id);
+        filmService.deleteLike(id, userId);
     }
 
     @GetMapping("/popular")

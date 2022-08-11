@@ -10,8 +10,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class LocalDateAdapter extends TypeAdapter<LocalDate> {
-    private static DateTimeFormatter formatterWriter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static DateTimeFormatter formatterReader = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter formatterWriter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter formatterReader = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Override
     public void write(JsonWriter jsonWriter, LocalDate localDate) throws IOException {
