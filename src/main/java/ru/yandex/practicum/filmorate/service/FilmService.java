@@ -27,7 +27,7 @@ public class FilmService {
         List<Film> films = filmStorage.getAllFilms();
         return filmGenreStorage.loadFilmGenres(films);
     }
-//Film genre storage!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     public Film createFilm(Film film) {
         validate(film);
         film = filmStorage.createFilm(film);
@@ -55,8 +55,9 @@ public class FilmService {
         return filmGenreStorage.loadFilmGenres(Collections.singletonList(film)).get(0);
     }
 
-    public void deleteFilm(Film film) {
-        filmStorage.deleteFilm(film);
+    public void deleteFilm(Integer Id) {
+        filmStorage.deleteFilm(filmStorage.getFilmByID(Id).orElseThrow(
+                () -> new ServerException(String.format("Фильм с ID=%d не найден", Id))));
     }
 
 }

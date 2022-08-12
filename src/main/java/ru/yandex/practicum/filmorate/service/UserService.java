@@ -52,8 +52,10 @@ public class UserService {
                         id)));
     }
 
-    public void deleteUser(User user) {
-        userStorage.deleteUser(user);
+    public void deleteUser(Integer Id) {
+        userStorage.getUserByID(Id).orElseThrow(
+                () -> new ServerException(String.format("Пользователь с ID=%d не найден",
+                Id)));
     }
 
 }
