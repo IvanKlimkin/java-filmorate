@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.LikeService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -17,9 +18,11 @@ import java.util.List;
 @Validated
 public class FilmController {
     private final FilmService filmService;
+    private final LikeService likeService;
 
-    public FilmController(FilmService filmService) {
+    public FilmController(FilmService filmService, LikeService likeService) {
         this.filmService = filmService;
+        this.likeService = likeService;
     }
 
     @GetMapping
@@ -44,17 +47,17 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     public void likeFilm(@PathVariable Integer id, @PathVariable Integer userId) {
-        filmService.addLike(id, userId);
+        likeService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void dislikeFilm(@PathVariable Integer id, @PathVariable Integer userId) {
-        filmService.deleteLike(id, userId);
+        likeService.deleteLike(id, userId);
     }
 
     @GetMapping("/popular")
     public List<Film> getMostLikedfilms(@RequestParam(defaultValue = "10") @Positive Integer count) {
-        return filmService.getMostLikedFilms(count);
+        return likeService.getMostLikedFilms(count);
     }
 
 }

@@ -14,11 +14,9 @@ import java.util.List;
 @Service
 public class UserService {
     private final UserStorage userStorage;
-    private final FriendStorage friendStorage;
 
-    public UserService(@Qualifier("DB realisation") UserStorage userStorage, FriendStorage friendStorage) {
+    public UserService(@Qualifier("DB realisation") UserStorage userStorage) {
         this.userStorage = userStorage;
-        this.friendStorage = friendStorage;
     }
 
     public List<User> getAllUsers() {
@@ -58,25 +56,4 @@ public class UserService {
         userStorage.deleteUser(user);
     }
 
-    public void addToFriends(Integer userID, Integer friendID) {
-        userStorage.getUserByID(userID).orElseThrow(
-                () -> new ServerException(String.format("Пользователь с ID=%d не найден",
-                        userID)));
-        userStorage.getUserByID(friendID).orElseThrow(
-                () -> new ServerException(String.format("Пользователь с ID=%d не найден",
-                        friendID)));
-        friendStorage.addFriend(userID, friendID);
-    }
-
-    public void deleteFromFriends(Integer userID, Integer friendID) {
-        friendStorage.deleteFriend(userID, friendID);
-    }
-
-    public List<User> getCommonFriends(Integer userID, Integer otherID) {
-        return friendStorage.getCommonFriends(userID, otherID);
-    }
-
-    public List<User> getUserFriends(Integer userID) {
-        return friendStorage.getUserFriends(userID);
-    }
 }
