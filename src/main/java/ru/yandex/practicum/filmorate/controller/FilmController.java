@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -13,7 +12,6 @@ import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
-@Slf4j
 @RequestMapping("/films")
 @Validated
 public class FilmController {

@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -15,7 +14,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class FilmGenreStorage {
@@ -53,8 +51,8 @@ public class FilmGenreStorage {
         final List<Integer> ids = films.stream().map(Film::getId).collect(Collectors.toList());
         final Map<Integer, Film> filmMap = films.stream().collect(
                 Collectors.toMap(film -> film.getId(), film -> film, (a, b) -> b));
-        String sql = "select FILM_GENRE.*, GENRE_NAME from FILM_GENRE join GENRES G2 on G2.GENRE_ID = FILM_GENRE.GENRE_ID " +
-                " WHERE FILM_ID IN (?)";
+        String sql = "select FILM_GENRE.*, GENRE_NAME from FILM_GENRE" +
+                " join GENRES G2 on G2.GENRE_ID = FILM_GENRE.GENRE_ID WHERE FILM_ID IN (?)";
         List<FilmGenre> allFilmGenres = jdbcTemplate.query(sql, (rs, rowNum) -> createFilmGenre(rs), ids.toArray());
         for (Film film : filmMap.values()) {
             List<Genre> genres = new ArrayList<>();

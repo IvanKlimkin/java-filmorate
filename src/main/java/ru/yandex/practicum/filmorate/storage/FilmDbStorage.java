@@ -2,15 +2,12 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.FilmGenre;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.Date;
@@ -20,7 +17,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -38,7 +34,7 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sql, ((rs, rowNum) -> makeFilm(rs)));
     }
 
-    static public Film makeFilm(ResultSet rs) throws SQLException {
+     public static Film makeFilm(ResultSet rs) throws SQLException {
         return new Film(rs.getInt("FILM_ID"),
                 rs.getString("NAME"),
                 rs.getString("DESCRIPTION"),

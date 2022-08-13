@@ -6,7 +6,6 @@ import org.springframework.util.StringUtils;
 import ru.yandex.practicum.filmorate.exception.ServerException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
@@ -53,9 +52,9 @@ public class UserService {
     }
 
     public void deleteUser(Integer Id) {
-        userStorage.getUserByID(Id).orElseThrow(
+        userStorage.deleteUser(userStorage.getUserByID(Id).orElseThrow(
                 () -> new ServerException(String.format("Пользователь с ID=%d не найден",
-                Id)));
+                        Id))));
     }
 
 }

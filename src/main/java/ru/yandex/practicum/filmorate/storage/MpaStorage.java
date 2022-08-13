@@ -21,7 +21,7 @@ public class MpaStorage {
         return jdbcTemplate.query(sql, ((rs, rowNum) -> this.createMpa(rs)));
     }
 
-    public Mpa getMpa(Integer id) {
+    public Mpa getMpaById(Integer id) {
         String sql = "select MPA.* from MPA where MPA_ID=?";
         try {
             return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> this.createMpa(rs), id);
