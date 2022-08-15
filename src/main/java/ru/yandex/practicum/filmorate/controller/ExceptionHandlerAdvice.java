@@ -17,28 +17,28 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleValidationException(ValidationException e) {
-        log.error(e.getMessage());
+        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 
     @ExceptionHandler(ServerException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleServerException(ServerException e) {
-        log.error(e.getMessage());
+        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 
     @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public String handleException(Throwable e) {
-        log.error(e.getLocalizedMessage());
+    public String handleException(Throwable e) { //Exception?
+        log.error(e.getLocalizedMessage(), e);
         return e.getMessage();
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleConstraintException(ConstraintViolationException e) {
-        log.error(e.getMessage());
+        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 }
