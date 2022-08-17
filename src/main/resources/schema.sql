@@ -93,3 +93,35 @@ create TABLE IF NOT EXISTS FILM_DIRECTOR
             REFERENCES DIRECTORS (DIRECTOR_ID) ON DELETE CASCADE,
     CONSTRAINT FILM_DIRECTOR_PK PRIMARY KEY (FILM_ID, DIRECTOR_ID)
 );
+
+create table if not exists REVIEWS
+(
+    REVIEW_ID   INTEGER auto_increment,
+    CONTENT     CHARACTER VARYING(1000) not null,
+    IS_POSITIVE BOOLEAN,
+    USER_ID     INTEGER,
+    FILM_ID     INTEGER,
+    USEFUL      INTEGER default 0,
+    constraint REVIEW_PK
+        primary key (REVIEW_ID),
+    constraint FILM_FK
+        foreign key (FILM_ID) references FILMS on delete cascade,
+    constraint USER_FK
+        foreign key (USER_ID) references USERS on delete cascade
+);
+
+create table if not exists REVIEW_USEFUL
+(
+    REVIEW_ID INTEGER not null,
+    USER_ID   INTEGER not null,
+    USEFUL    INTEGER not null,
+    constraint USEFUL_PK
+        primary key (REVIEW_ID, USER_ID),
+    constraint REVIEW_FK
+        foreign key (REVIEW_ID) references REVIEWS
+            on delete cascade,
+    constraint USER_FK1
+        foreign key (USER_ID) references USERS
+            on delete cascade
+);
+
