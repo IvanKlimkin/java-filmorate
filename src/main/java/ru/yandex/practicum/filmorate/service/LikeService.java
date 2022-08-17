@@ -7,6 +7,8 @@ import ru.yandex.practicum.filmorate.storage.FilmParameterStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor

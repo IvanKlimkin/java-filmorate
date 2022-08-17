@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.exception.ServerException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
+import java.util.function.Function;
 
 @Component
 public class LikeStorage {
@@ -31,5 +32,28 @@ public class LikeStorage {
                 "JOIN MPA M on M.MPA_ID = F.MPA_ID" +
                 " group by F.FILM_ID  order by COUNT(L.USER_LIKED_ID) DESC LIMIT ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> FilmDbStorage.makeFilm(rs), count);
+    }
+
+    /**
+     * Получить экземпляр jdbcTemplate
+     *
+     * @return JdbcTemplate - возвращает экземпляр JdbcTemplate
+     */
+    public JdbcTemplate getJdbcTemplate() {
+        return jdbcTemplate;
+    }
+
+    /**
+     * Обобщённый метод фильтрации или сортировки или того и другого
+     *
+     * @param function - функция, которая выполняет фильтрацию и/или сортировку
+     * @param parameter - в случае фильтрации параметр по которому происходит фильтрация
+     *                  - в случае сортировки сортируемая группа объектов
+     * @param <T> - тип передаваемого значения
+     * @param <R> - тип возвращаемого значения
+     * @return -
+     */
+    public <T, R> R sortingOrFiltering(Function<T, R> function, T parameter) {
+        return function.apply(parameter);
     }
 }

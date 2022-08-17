@@ -2,7 +2,9 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.FriendService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -15,10 +17,12 @@ public class UserController {
 
     private final UserService userService;
     private final FriendService friendService;
+    private final FilmService filmService;
 
-    public UserController(UserService userService, FriendService friendService) {
+    public UserController(UserService userService, FriendService friendService, FilmService filmService) {
         this.userService = userService;
         this.friendService = friendService;
+        this.filmService = filmService;
     }
 
     @GetMapping
@@ -65,5 +69,10 @@ public class UserController {
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
         return friendService.getCommonFriends(id, otherId);
+    }
+
+    @GetMapping("/{id}/recommendations")
+    public List<Film> getRecommendations(@PathVariable int id) {
+        return filmService.getRecommendations(id).get();
     }
 }
