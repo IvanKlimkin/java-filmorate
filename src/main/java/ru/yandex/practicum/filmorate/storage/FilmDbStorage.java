@@ -7,16 +7,15 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -28,20 +27,38 @@ public class FilmDbStorage implements FilmStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    public static Film makeFilm(ResultSet rs) throws SQLException {
+        return new Film(rs.getInt("FILM_ID"),
+                rs.getString("NAME"),
+                rs.getString("DESCRIPTION"),
+                rs.getDate("RELEASE_DATE").toLocalDate(),
+                rs.getInt("DURATION"),
+                new Mpa(rs.getInt("MPA_ID"), rs.getString("MPA_NAME")),
+                new HashSet<>(),
+                new HashSet<>()
+        );
+    }
+
     @Override
     public List<Film> getAllFilms() {
         String sql = "select FILMS.*,MPA_NAME from FILMS join MPA M on M.MPA_ID = FILMS.MPA_ID";
         return jdbcTemplate.query(sql, ((rs, rowNum) -> makeFilm(rs)));
     }
 
-     public static Film makeFilm(ResultSet rs) throws SQLException {
-        return new Film(rs.getInt("FILM_ID"),
-                rs.getString("NAME"),
-                rs.getString("DESCRIPTION"),
-                rs.getDate("RELEASE_DATE").toLocalDate(),
-                rs.getInt("DURATION"),
-                new Mpa(rs.getInt("MPA_ID"), rs.getString("MPA_NAME"))
-        );
+    @Override
+    public List<Film> getSortedFilms(Director director, String sort) {
+        String sql;
+        if(sort.equals("year")){
+            sql = "select FILMS.*, MPA_NAME from FILMS join MPA M on FILMS.MPA_ID = M.MPA_ID" +
+                    " join FILM_DIRECTOR FD on FILMS.FILM_ID = FD.FILM_ID where FD.DIRECTOR_ID =?";
+        }
+        else {
+            sql = "select FILMS.*,MPA_NAME from FILMS join MPA M on FILMS.MPA_ID = M.MPA_ID" +
+                    " left join LIKES L on FILMS.FILM_ID = L.FILM_ID " +
+                    "join FILM_DIRECTOR FD on FILMS.FILM_ID = FD.FILM_ID" +
+                    " where FD.DIRECTOR_ID=? group by FILMS.FILM_ID order by COUNT(L.USER_LIKED_ID)";
+        }
+            return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), director.getId());
     }
 
     @Override
@@ -56,7 +73,9 @@ public class FilmDbStorage implements FilmStorage {
                     filmRows.getString("DESCRIPTION"),
                     filmRows.getDate("RELEASE_DATE").toLocalDate(),
                     filmRows.getInt("DURATION"),
-                    new Mpa(filmRows.getInt("MPA_ID"), filmRows.getString("MPA_NAME"))
+                    new Mpa(filmRows.getInt("MPA_ID"), filmRows.getString("MPA_NAME")),
+                    new HashSet<>(),
+                    new HashSet<>()
             );
             log.info(
                     "Найден фильм: {} {}",

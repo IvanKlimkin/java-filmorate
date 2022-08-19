@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ServerException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.*;
+import java.util.List;
 
 @Component
 public class LikeStorage {

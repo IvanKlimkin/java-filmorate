@@ -25,19 +25,19 @@ public class UserDbStorage implements UserStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Override
-    public List<User> getAllUsers() {
-        String sql = "select * from USERS";
-        return jdbcTemplate.query(sql, ((rs, rowNum) -> makeUser(rs)));
-    }
-
-    static public User makeUser(ResultSet rs) throws SQLException {
+    public static User makeUser(ResultSet rs) throws SQLException {
         Integer id = rs.getInt("USER_ID");
         String email = rs.getString("EMAIL");
         String login = rs.getString("LOGIN");
         LocalDate birthday = rs.getDate("BIRTHDAY").toLocalDate();
         String name = rs.getString("USER_NAME");
         return new User(id, email, login, birthday, name);
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        String sql = "select * from USERS";
+        return jdbcTemplate.query(sql, ((rs, rowNum) -> makeUser(rs)));
     }
 
     @Override
