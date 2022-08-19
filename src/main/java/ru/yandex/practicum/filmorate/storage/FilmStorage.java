@@ -19,5 +19,5 @@ public interface FilmStorage {
 
     void deleteFilm(Film film);
 
-    List<Film> getSortedFilms(Director director);
+    List<Film> getSortedFilms(Director director, String sort);
 }

@@ -4,7 +4,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.LikeService;
 
@@ -18,12 +17,10 @@ import java.util.List;
 public class FilmController {
     private final FilmService filmService;
     private final LikeService likeService;
-    private final DirectorService directorService;
 
-    public FilmController(FilmService filmService, LikeService likeService, DirectorService directorService) {
+    public FilmController(FilmService filmService, LikeService likeService) {
         this.filmService = filmService;
         this.likeService = likeService;
-        this.directorService = directorService;
     }
 
     @GetMapping
@@ -68,7 +65,7 @@ public class FilmController {
 
     @GetMapping("/director/{directorId}")
     public List<Film> getSortedFilms(@PathVariable Integer directorId, @RequestParam String sortBy) {
-        return filmService.getSortedFilms(directorService.getDirectorById(directorId), sortBy);
+        return filmService.getSortedFilms(directorId, sortBy);
     }
 
 }

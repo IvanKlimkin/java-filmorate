@@ -46,12 +46,19 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getSortedFilms(Director director) {
-        String sql = "select FILMS.*,MPA_NAME from FILMS join MPA M on FILMS.MPA_ID = M.MPA_ID" +
-                " left join LIKES L on FILMS.FILM_ID = L.FILM_ID " +
-                "join FILM_DIRECTOR FD on FILMS.FILM_ID = FD.FILM_ID" +
-                " where FD.DIRECTOR_ID=? group by FILMS.FILM_ID order by COUNT(L.USER_LIKED_ID)";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), director.getId());
+    public List<Film> getSortedFilms(Director director, String sort) {
+        String sql;
+        if(sort.equals("year")){
+            sql = "select FILMS.*, MPA_NAME from FILMS join MPA M on FILMS.MPA_ID = M.MPA_ID" +
+                    " join FILM_DIRECTOR FD on FILMS.FILM_ID = FD.FILM_ID where FD.DIRECTOR_ID =?";
+        }
+        else {
+            sql = "select FILMS.*,MPA_NAME from FILMS join MPA M on FILMS.MPA_ID = M.MPA_ID" +
+                    " left join LIKES L on FILMS.FILM_ID = L.FILM_ID " +
+                    "join FILM_DIRECTOR FD on FILMS.FILM_ID = FD.FILM_ID" +
+                    " where FD.DIRECTOR_ID=? group by FILMS.FILM_ID order by COUNT(L.USER_LIKED_ID)";
+        }
+            return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), director.getId());
     }
 
     @Override

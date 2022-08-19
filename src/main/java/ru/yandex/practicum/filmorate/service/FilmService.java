@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ServerException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmParameterStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -21,11 +20,13 @@ public class FilmService {
     private static final LocalDate START_DATE = LocalDate.of(1895, 12, 28);
     private final FilmStorage filmStorage;
     private final FilmParameterStorage filmParameterStorage;
+    private final DirectorService directorService;
 
     public FilmService(@Qualifier("DB realisation") FilmStorage filmStorage,
-                       FilmParameterStorage filmParameterStorage) {
+                       FilmParameterStorage filmParameterStorage, DirectorService directorService) {
         this.filmStorage = filmStorage;
         this.filmParameterStorage = filmParameterStorage;
+        this.directorService = directorService;
     }
 
     public Collection<Film> getAllFilms() {
@@ -65,18 +66,16 @@ public class FilmService {
                 () -> new ServerException(String.format("Фильм с ID=%d не найден", Id))));
     }
 
-    public List<Film> getSortedFilms(Director director, String sort) {
+    public List<Film> getSortedFilms(Integer directorId, String sort) {
+            List<Film> filteredFilms = filmStorage.getSortedFilms(
+                    directorService.getDirectorById(directorId), sort);
+            filmParameterStorage.loadFilmParameters(filteredFilms);
         if (sort.equals("year")) {
-            return
-                    getAllFilms().stream().
-                            filter(p -> p.getDirectors()
-                                    .contains(director))
-                            .sorted(Comparator.
-                                    comparing(Film::getReleaseDate)).collect(Collectors.toList());
-        } else {
-            List<Film> sortedFilms = filmStorage.getSortedFilms(director);
-            return filmParameterStorage.loadFilmParameters(sortedFilms);
+            return filteredFilms.stream()
+                    .sorted(Comparator.comparing(Film::getReleaseDate))
+                    .collect(Collectors.toList());
         }
+        else return filteredFilms;
     }
 
 }
