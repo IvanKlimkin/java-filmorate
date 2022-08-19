@@ -34,6 +34,9 @@ public class FriendService {
     }
 
     public List<User> getUserFriends(Integer userID) {
+        userStorage.getUserByID(userID).orElseThrow(
+                () -> new ServerException(String.format("Пользователь с ID=%d не найден",
+                        userID)));
         return friendStorage.getUserFriends(userID);
     }
 }
