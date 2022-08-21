@@ -20,4 +20,6 @@ public interface FilmStorage {
     void deleteFilm(Film film);
 
     List<Film> getSortedFilms(Director director, String sort);
+
+    List<Film> searchFilms(String lowerQuery, String params);
 }

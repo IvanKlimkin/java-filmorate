@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -128,5 +129,47 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "delete from FILMS where FILM_ID = ?";
         jdbcTemplate.update(sql, film.getId());
     }
-
+    @Override
+    public List<Film> searchFilms(String lowerQuery, String params) {
+        List<Film> filmList = new ArrayList<>();
+        String sql;
+        if (params.contains("title") && params.contains("director")) {
+            sql = "select f.FILM_ID, f.NAME, f.DESCRIPTION, " +
+                    "f.RELEASE_DATE, f.DURATION, f.MPA_ID, m.MPA_NAME " +
+                    "from FILMS f " +
+                    "join MPA m on m.MPA_ID = f.MPA_ID " +
+                    "left join FILM_DIRECTOR fd on fd.FILM_ID = f.FILM_ID " +
+                    "left join DIRECTORS d on fd.DIRECTOR_ID = d.DIRECTOR_ID " +
+                    "left join (select FILM_ID, count(USER_LIKED_ID) evaluate " +
+                    "from LIKES group by FILM_ID) e on f.FILM_ID = e.FILM_ID " +
+                    "where (lower(d.DIRECTOR_NAME) like '%' || lower(?) || '%' or lower(f.NAME) like '%' || lower(?) || '%') " +
+                    "order by e.evaluate desc ";
+            filmList = jdbcTemplate.query(sql,((rs, rowNum) -> makeFilm(rs)), lowerQuery, lowerQuery);
+        }
+        else if (params.equals("director")) {
+            sql = "select f.FILM_ID, f.NAME, f.DESCRIPTION, " +
+                    "f.RELEASE_DATE, f.DURATION, f.MPA_ID, m.MPA_NAME " +
+                    "from FILMS f " +
+                    "left join FILM_DIRECTOR fd on fd.FILM_ID = f.FILM_ID " +
+                    "left join DIRECTORS d on fd.DIRECTOR_ID = d.DIRECTOR_ID " +
+                    "join MPA m on m.MPA_ID = f.MPA_ID " +
+                    "left join (select FILM_ID, count(USER_LIKED_ID) evaluate " +
+                    "from LIKES group by FILM_ID) e on f.FILM_ID = e.FILM_ID " +
+                    "where (d.DIRECTOR_NAME) like '%' || (?) || '%' " +
+                    "order by e.evaluate desc";
+            filmList = jdbcTemplate.query(sql,((rs, rowNum) -> makeFilm(rs)), lowerQuery);
+        } else if (params.equals("title")) {
+            sql = "select f.FILM_ID, f.NAME, f.DESCRIPTION, " +
+                    "f.RELEASE_DATE, f.DURATION, f.MPA_ID, m.MPA_NAME " +
+                    "from FILMS f " +
+                    "join MPA m on m.MPA_ID = f.MPA_ID " +
+                    "left join FILM_DIRECTOR fd on fd.FILM_ID = f.FILM_ID " +
+                    "left join (select FILM_ID, count(user_liked_id) evaluate " +
+                    "from LIKES group by FILM_ID) e on f.FILM_ID = e.FILM_ID " +
+                    "where lower(f.NAME) like '%' || lower(?) || '%' " +
+                    "order by e.evaluate desc";
+            filmList = jdbcTemplate.query(sql,((rs, rowNum) -> makeFilm(rs)), lowerQuery);
+        }
+        return filmList;
+    }
 }
