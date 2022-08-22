@@ -113,7 +113,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void updateFilm(Film film) {
-        String sql = "update FILMS set NAME = ?,DESCRIPTION = ?,RELEASE_DATE = ?,DURATION = ?,MPA_ID = ? where FILM_ID = ?";
+        String sql = "update FILMS set NAME = ?,DESCRIPTION = ?,RELEASE_DATE = ?,DURATION = ?,MPA_ID = ? where " +
+                "FILM_ID = ?";
         jdbcTemplate.update(sql,
                 film.getName(),
                 film.getDescription(),
@@ -171,6 +172,39 @@ public class FilmDbStorage implements FilmStorage {
         }
         return filmList;
     }
+
+    @Override
+    public List<Film> getMostPopularFilmsByYear(int year, int limit) {
+        String sql = "select * from FILMS F join MPA M on F.MPA_ID = M.MPA_ID " +
+                "left join LIKES L ON F.FILM_ID = L.FILM_ID " +
+                "where YEAR(F.RELEASE_DATE) = ? " +
+                "group by F.FILM_ID, L.USER_LIKED_ID " +
+                "order by COUNT(L.USER_LIKED_ID) desc limit ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), year, limit);
+    }
+
+    @Override
+    public List<Film> getMostPopularFilmsByGenre(int genreId, int limit) {
+        String sql = "select * from FILMS F join MPA M on F.MPA_ID = M.MPA_ID " +
+                "left join LIKES L ON F.FILM_ID = L.FILM_ID " +
+                "left join FILM_GENRE FG ON F.FILM_ID = FG.FILM_ID " +
+                "where FG.GENRE_ID = ? " +
+                "group by F.FILM_ID, L.USER_LIKED_ID, FG.GENRE_ID " +
+                "order by COUNT(L.USER_LIKED_ID) desc limit ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), genreId, limit);
+    }
+
+    @Override
+    public List<Film> getMostPopularFilmsByGenreAndYear(int genreId, int year, int limit) {
+        String sql = "select * from FILMS F join MPA M on F.MPA_ID = M.MPA_ID " +
+                "left join LIKES L ON F.FILM_ID = L.FILM_ID " +
+                "left join FILM_GENRE FG ON F.FILM_ID = FG.FILM_ID " +
+                "where FG.GENRE_ID = ? AND YEAR(F.RELEASE_DATE) = ? " +
+                "group by F.FILM_ID, L.USER_LIKED_ID " +
+                "order by COUNT(L.USER_LIKED_ID) desc limit ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), genreId, year, limit);
+    }
+
 
     @Override
     public List<Film> getMostPopularFilmsByYear(int year, int limit) {

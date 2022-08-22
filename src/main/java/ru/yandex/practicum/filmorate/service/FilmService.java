@@ -79,6 +79,7 @@ public class FilmService {
                     .sorted(Comparator.comparing(Film::getReleaseDate))
                     .collect(Collectors.toList());
         } else return filteredFilms;
+
     }
 
     public List<Film> getMostPopularFilms(int genreId, int year, int limit) {
