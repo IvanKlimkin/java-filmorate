@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.yandex.practicum.filmorate.exception.ServerException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -49,6 +50,12 @@ public class UserService {
         return userStorage.getUserByID(id).orElseThrow(
                 () -> new ServerException(String.format("Пользователь с ID=%d не найден",
                         id)));
+    }
+
+    public List<Event> getUserFeed(Integer id) {
+        return userStorage.getUserFeed(userStorage.getUserByID(id).orElseThrow(
+                () -> new ServerException(String.format("Пользователь с ID=%d не найден",
+                        id))));
     }
 
     public void deleteUser(Integer Id) {
