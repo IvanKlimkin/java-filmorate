@@ -79,6 +79,7 @@ public class FilmService {
                     .sorted(Comparator.comparing(Film::getReleaseDate))
                     .collect(Collectors.toList());
         } else return filteredFilms;
+
     }
 
     public List<Film> getMostPopularFilms(int genreId, int year, int limit) {
@@ -97,5 +98,9 @@ public class FilmService {
         }
         return filmParameterStorage.loadFilmParameters(films);
     }
-
+    public List<Film> searchFilms(String query, String params) {
+        List<Film> films = filmStorage.searchFilms(query,params);
+        filmParameterStorage.loadFilmParameters(films);
+        return films;
+    }
 }
