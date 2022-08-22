@@ -23,10 +23,12 @@ public class FriendService {
                 () -> new ServerException(String.format("Пользователь с ID=%d не найден",
                         friendID)));
         friendStorage.addFriend(userID, friendID);
+        userStorage.addEvent(userID,friendID,"FRIEND","ADD");
     }
 
     public void deleteFromFriends(Integer userID, Integer friendID) {
         friendStorage.deleteFriend(userID, friendID);
+            userStorage.addEvent(userID,friendID,"FRIEND","REMOVE");
     }
 
     public List<User> getCommonFriends(Integer userID, Integer otherID) {

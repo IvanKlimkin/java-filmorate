@@ -45,7 +45,7 @@ public class ReviewStorage {
                 review.getReviewId());
         log.debug("Обновлен отзыв {} у фильма {} от пользователя {}.", review.getReviewId(), review.getFilmId(),
                 review.getUserId());
-        return review;
+        return getReview(review.getReviewId());
     }
 
     public void deleteReview(int id) {

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
@@ -17,4 +18,8 @@ public interface UserStorage {
     void updateUser(User user);
 
     void deleteUser(User user);
+
+    List<Event> getUserFeed(User orElseThrow);
+
+    void addEvent(Integer userId, Integer entityId, String eventType, String operation);
 }

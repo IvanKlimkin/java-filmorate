@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewUsefulStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,20 +17,28 @@ import java.util.stream.Collectors;
 public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final ReviewUsefulStorage reviewUsefulStorage;
+    private final UserStorage userStorage;
 
     public Review createReview(Review review) {
         checkReview(review);
-        return reviewStorage.createReview(review);
+        Review newReview = reviewStorage.createReview(review);
+        userStorage.addEvent(newReview.getUserId(),newReview.getReviewId(),"REVIEW","ADD");
+        return newReview;
     }
 
     public Review updateReview(Review review) {
         checkReview(review);
         updateUsefulOfReview(review);
-        return reviewStorage.updateReview(review);
+
+        Review updReview = reviewStorage.updateReview(review);
+        userStorage.addEvent(updReview.getUserId(),updReview.getReviewId(),"REVIEW","UPDATE");
+        return updReview;
     }
 
     public void deleteReview(int id) {
         checkReviewId(id);
+        userStorage.addEvent(
+                getReviewById(id).getUserId(),id,"REVIEW","REMOVE");
         reviewStorage.deleteReview(id);
     }
 

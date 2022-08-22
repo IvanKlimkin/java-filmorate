@@ -125,3 +125,17 @@ create table if not exists REVIEW_USEFUL
             on delete cascade
 );
 
+create table if not exists EVENTS
+(
+    EVENT_ID INTEGER AUTO_INCREMENT,
+    USER_ID INTEGER NOT NULL,
+    ENTITY_ID INTEGER NOT NULL,
+    EVENT_TYPE VARCHAR(100) NOT NULL,
+    OPERATION VARCHAR(100) NOT NULL,
+    TIMESTAMP LONG,
+    constraint EVENT_PK
+        primary key (EVENT_ID),
+    constraint EVENTS_USER_FK
+        foreign key (USER_ID) references USERS
+            on delete cascade
+);
