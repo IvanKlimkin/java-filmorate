@@ -195,7 +195,7 @@ public class FilmService {
 
         //Получить отсортированные по убыванию количества лайков фильмы, применив фнукцию сортировки к отображению
         return likeStorage.sortingOrFiltering(sortingFunction, filmsIdWithNumberOfLikes);
-   )
+    }
    
     public List<Film> searchFilms(String query, String params) {
         List<Film> films = filmStorage.searchFilms(query,params);
