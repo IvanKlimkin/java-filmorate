@@ -155,7 +155,7 @@ public class FilmDbStorage implements FilmStorage {
                     "join MPA m on m.MPA_ID = f.MPA_ID " +
                     "left join (select FILM_ID, count(USER_LIKED_ID) evaluate " +
                     "from LIKES group by FILM_ID) e on f.FILM_ID = e.FILM_ID " +
-                    "where (d.DIRECTOR_NAME) like '%' || (?) || '%' " +
+                    "where lower(d.DIRECTOR_NAME) like '%' || lower(?) || '%' " +
                     "order by e.evaluate desc";
             filmList = jdbcTemplate.query(sql,((rs, rowNum) -> makeFilm(rs)), lowerQuery);
         } else if (params.equals("title")) {

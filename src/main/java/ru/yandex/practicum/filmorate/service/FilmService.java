@@ -78,8 +78,7 @@ public class FilmService {
         else return filteredFilms;
     }
     public List<Film> searchFilms(String query, String params) {
-        String lowerQuery = query.toLowerCase();
-        List<Film> films = filmStorage.searchFilms(lowerQuery,params);
+        List<Film> films = filmStorage.searchFilms(query,params);
         filmParameterStorage.loadFilmParameters(films);
         return films;
     }
