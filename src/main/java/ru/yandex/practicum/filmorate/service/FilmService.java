@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmParameterStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.LikeStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -21,12 +22,15 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final FilmParameterStorage filmParameterStorage;
     private final DirectorService directorService;
+    private final LikeStorage likeStorage;
 
     public FilmService(@Qualifier("DB realisation") FilmStorage filmStorage,
-                       FilmParameterStorage filmParameterStorage, DirectorService directorService) {
+                       FilmParameterStorage filmParameterStorage, DirectorService directorService,
+                       LikeStorage likeStorage) {
         this.filmStorage = filmStorage;
         this.filmParameterStorage = filmParameterStorage;
         this.directorService = directorService;
+        this.likeStorage = likeStorage;
     }
 
     public Collection<Film> getAllFilms() {
@@ -67,15 +71,31 @@ public class FilmService {
     }
 
     public List<Film> getSortedFilms(Integer directorId, String sort) {
-            List<Film> filteredFilms = filmStorage.getSortedFilms(
-                    directorService.getDirectorById(directorId), sort);
-            filmParameterStorage.loadFilmParameters(filteredFilms);
+        List<Film> filteredFilms = filmStorage.getSortedFilms(
+                directorService.getDirectorById(directorId), sort);
+        filmParameterStorage.loadFilmParameters(filteredFilms);
         if (sort.equals("year")) {
             return filteredFilms.stream()
                     .sorted(Comparator.comparing(Film::getReleaseDate))
                     .collect(Collectors.toList());
+        } else return filteredFilms;
+    }
+
+    public List<Film> getMostPopularFilms(int genreId, int year, int limit) {
+        List<Film> films;
+        if (genreId == 0 && year == 0) {
+            films = likeStorage.getLikedUsersID(limit);
+        } else if (genreId == 0 && year != 0) {
+            //фильмы по всем жанрам и по заданному году
+            films = filmStorage.getMostPopularFilmsByYear(year, limit);
+        } else if (genreId != 0 && year == 0) {
+            //фильмы по заданному жанру и по всем годам
+            films = filmStorage.getMostPopularFilmsByGenre(genreId, limit);
+        } else {
+            //фильмы по заданному жанру и по заданному году
+            films = filmStorage.getMostPopularFilmsByGenreAndYear(genreId, year, limit);
         }
-        else return filteredFilms;
+        return filmParameterStorage.loadFilmParameters(films);
     }
 
 }
