@@ -103,7 +103,6 @@ public class FilmService {
         return filmParameterStorage.loadFilmParameters(films);
     }
 
-
     /**
      * Получить общие фильмы с другом
      *
@@ -200,6 +199,7 @@ public class FilmService {
         return likeStorage.sortingOrFiltering(sortingFunction, filmsIdWithNumberOfLikes);
     }
 
+
     /**
      * Получить рекомендацию фильмов
      *
@@ -287,7 +287,6 @@ public class FilmService {
             return anotherFilmLoverFilmsId;
         }
     }
-
 
     public List<Film> searchFilms(String query, String params) {
         List<Film> films = filmStorage.searchFilms(query,params);
