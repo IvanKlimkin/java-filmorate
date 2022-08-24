@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmParameterStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
@@ -18,8 +19,11 @@ public class LikeService {
     private final FilmParameterStorage FilmParameterStorage;
     private final UserStorage userStorage;
 
-    public void addLike(Integer filmID, Integer userID) {
-        likeStorage.addLike(filmID, userID);
+    public void addLike(Integer filmID, Integer userID, Integer rate) {
+        if (rate < 1 | rate > 10) {
+            throw new ValidationException("Оценка фильма должна быть в диапазоне от 1 до 10 включительно.");
+        }
+        likeStorage.addLike(filmID, userID, rate);
         userStorage.addEvent(userID,filmID,"LIKE","ADD");
     }
 

@@ -16,9 +16,9 @@ public class LikeStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void addLike(Integer filmID, Integer userID) {
-        String sql = "merge into LIKES (FILM_ID,USER_LIKED_ID) values (?,?)";
-        jdbcTemplate.update(sql, filmID, userID);
+    public void addLike(Integer filmID, Integer userID, Integer rate) {
+        String sql = "merge into LIKES (FILM_ID, USER_LIKED_ID, RATE) values (?, ?, ?)";
+        jdbcTemplate.update(sql, filmID, userID, rate);
     }
 
     public void deleteLike(Integer filmID, Integer userID) {
