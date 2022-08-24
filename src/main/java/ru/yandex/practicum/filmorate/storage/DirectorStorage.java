@@ -22,7 +22,7 @@ public class DirectorStorage {
     private final JdbcTemplate jdbcTemplate;
 
     public List<Director> findAll() {
-        String sql = "select DIRECTORS.* from DIRECTORS";
+        String sql = "select D.* from DIRECTORS D";
         return jdbcTemplate.query(sql, ((rs, rowNum) -> this.createDirector(rs)));
     }
 
@@ -54,7 +54,7 @@ public class DirectorStorage {
     }
 
     public Director getDirectorById(Integer id) throws ServerException {
-        String sql = "select DIRECTORS.* from DIRECTORS where DIRECTOR_ID=?";
+        String sql = "select D.* from DIRECTORS D where DIRECTOR_ID=?";
         try {
             return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> this.createDirector(rs), id);
         } catch (EmptyResultDataAccessException e) {

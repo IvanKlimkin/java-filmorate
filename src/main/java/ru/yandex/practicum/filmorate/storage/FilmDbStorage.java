@@ -129,6 +129,7 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "delete from FILMS where FILM_ID = ?";
         jdbcTemplate.update(sql, film.getId());
     }
+
     @Override
     public List<Film> searchFilms(String lowerQuery, String params) {
         List<Film> filmList = new ArrayList<>();
@@ -144,9 +145,8 @@ public class FilmDbStorage implements FilmStorage {
                     "from LIKES group by FILM_ID) e on f.FILM_ID = e.FILM_ID " +
                     "where (lower(d.DIRECTOR_NAME) like '%' || lower(?) || '%' or lower(f.NAME) like '%' || lower(?) || '%') " +
                     "order by e.evaluate desc ";
-            filmList = jdbcTemplate.query(sql,((rs, rowNum) -> makeFilm(rs)), lowerQuery, lowerQuery);
-        }
-        else if (params.equals("director")) {
+            filmList = jdbcTemplate.query(sql, ((rs, rowNum) -> makeFilm(rs)), lowerQuery, lowerQuery);
+        } else if (params.equals("director")) {
             sql = "select f.FILM_ID, f.NAME, f.DESCRIPTION, " +
                     "f.RELEASE_DATE, f.DURATION, f.MPA_ID, m.MPA_NAME " +
                     "from FILMS f " +
@@ -157,7 +157,7 @@ public class FilmDbStorage implements FilmStorage {
                     "from LIKES group by FILM_ID) e on f.FILM_ID = e.FILM_ID " +
                     "where lower(d.DIRECTOR_NAME) like '%' || lower(?) || '%' " +
                     "order by e.evaluate desc";
-            filmList = jdbcTemplate.query(sql,((rs, rowNum) -> makeFilm(rs)), lowerQuery);
+            filmList = jdbcTemplate.query(sql, ((rs, rowNum) -> makeFilm(rs)), lowerQuery);
         } else if (params.equals("title")) {
             sql = "select f.FILM_ID, f.NAME, f.DESCRIPTION, " +
                     "f.RELEASE_DATE, f.DURATION, f.MPA_ID, m.MPA_NAME " +
@@ -168,7 +168,7 @@ public class FilmDbStorage implements FilmStorage {
                     "from LIKES group by FILM_ID) e on f.FILM_ID = e.FILM_ID " +
                     "where lower(f.NAME) like '%' || lower(?) || '%' " +
                     "order by e.evaluate desc";
-            filmList = jdbcTemplate.query(sql,((rs, rowNum) -> makeFilm(rs)), lowerQuery);
+            filmList = jdbcTemplate.query(sql, ((rs, rowNum) -> makeFilm(rs)), lowerQuery);
         }
         return filmList;
     }

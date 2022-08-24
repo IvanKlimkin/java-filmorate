@@ -11,10 +11,10 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode(of = "eventId")
 public class Event {
-Integer eventId;
-Integer userId;
-Integer entityId;
-String eventType;
-String operation;
-Long timestamp;
+private Integer eventId;
+private Integer userId;
+private Integer entityId;
+private String eventType;
+private String operation;
+private Long timestamp;
 }
