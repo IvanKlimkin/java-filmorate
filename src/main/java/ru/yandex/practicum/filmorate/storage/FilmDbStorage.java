@@ -36,7 +36,8 @@ public class FilmDbStorage implements FilmStorage {
                 rs.getInt("DURATION"),
                 new Mpa(rs.getInt("MPA_ID"), rs.getString("MPA_NAME")),
                 new HashSet<>(),
-                new HashSet<>()
+                new HashSet<>(),
+                0.0
         );
     }
 
@@ -75,7 +76,8 @@ public class FilmDbStorage implements FilmStorage {
                     filmRows.getInt("DURATION"),
                     new Mpa(filmRows.getInt("MPA_ID"), filmRows.getString("MPA_NAME")),
                     new HashSet<>(),
-                    new HashSet<>()
+                    new HashSet<>(),
+                    0.0
             );
             log.info(
                     "Найден фильм: {} {}",

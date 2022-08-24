@@ -8,8 +8,6 @@ import ru.yandex.practicum.filmorate.storage.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -18,8 +16,8 @@ public class LikeService {
     private final FilmParameterStorage FilmParameterStorage;
     private final UserStorage userStorage;
 
-    public void addLike(Integer filmID, Integer userID) {
-        likeStorage.addLike(filmID, userID);
+    public void addLike(Integer filmID, Integer userID, Integer rate) {
+        likeStorage.addLike(filmID, userID, rate);
         userStorage.addEvent(userID,filmID,"LIKE","ADD");
     }
 
