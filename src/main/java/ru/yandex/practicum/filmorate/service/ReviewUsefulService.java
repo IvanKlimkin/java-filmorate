@@ -12,7 +12,6 @@ public class ReviewUsefulService {
     private final ReviewUsefulStorage reviewUsefulStorage;
     private final ReviewStorage reviewStorage;
 
-
     public void addLike(int reviewId, int userId) {
         checkReviewIdAndUserID(reviewId, userId);
         reviewUsefulStorage.addLike(reviewId, userId);

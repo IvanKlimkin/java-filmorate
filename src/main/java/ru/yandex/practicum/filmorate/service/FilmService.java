@@ -89,11 +89,11 @@ public class FilmService {
     public List<Film> getMostPopularFilms(int genreId, int year, int limit) {
         List<Film> films;
         if (genreId == 0 && year == 0) {
-            films = likeStorage.getLikedUsersID(limit);
-        } else if (genreId == 0 && year != 0) {
+            films = likeStorage.getAllSortedFilms(limit);
+        } else if (genreId == 0) {
             //фильмы по всем жанрам и по заданному году
             films = filmStorage.getMostPopularFilmsByYear(year, limit);
-        } else if (genreId != 0 && year == 0) {
+        } else if (year == 0) {
             //фильмы по заданному жанру и по всем годам
             films = filmStorage.getMostPopularFilmsByGenre(genreId, limit);
         } else {
@@ -182,7 +182,6 @@ public class FilmService {
     /**
      * Получить фильмы упорядоченные по количеству лайков пользователей
      *
-     * @param filmsIdWithNumberOfLikes
      * @return
      */
     private List<Film> getFilmsOrderedByNumberOfLikes(HashMap<Integer, Integer> filmsIdWithNumberOfLikes) {
@@ -199,97 +198,8 @@ public class FilmService {
         return likeStorage.sortingOrFiltering(sortingFunction, filmsIdWithNumberOfLikes);
     }
 
-
-    /**
-     * Получить рекомендацию фильмов
-     *
-     * @param userId - идентификатор пользователя для которого запрашивается рекомендация
-     * @return - список рекомендуемых фильмов
-     */
-    public Optional<List<Film>> getRecommendations(int userId) {
-        //Получить сопоставление идентификаторов пользователей с количеством общих, с главным пользователем, фильмов
-        Map<Integer, Integer> usersIdSharedFilms = getUsersIdAndNumberSharedFilms(userId);
-        //Если главный пользователь не имеет лайкнутых фильмов, рекомендация не выдаётся, т.к. он может смотреть любой фильм
-        if (usersIdSharedFilms.size() < 1) {
-            return Optional.of(Collections.emptyList());
-        }
-        //Получить запись пользователя с максимальным числом общих фильмов
-        Optional<Map.Entry<Integer, Integer>> userIdWithMaxSharedFilms = usersIdSharedFilms.entrySet().stream()
-                .max(Comparator.comparing(Map.Entry::getValue));
-
-        //Получить идентификаторы рекомендуемых фильмов
-        List<Integer> recommendedFilmsId = getRecommendedFilmsId(userId, userIdWithMaxSharedFilms.get().getKey());
-        //Получить объекты фильмов
-        List<Film> recommendedFilmObjects = recommendedFilmsId.stream()
-                .map(filmId -> {
-                    Film film = getFilm(filmId);
-                    filmParameterStorage.setFilmParameter(film);
-                    return film;
-                })
-                .collect(Collectors.toList());
-        return Optional.of(recommendedFilmObjects);
-    }
-
-    /**
-     * Получить сопоставление пользовательского идентификатора и количество общих фильмов с эталонным ползователем
-     *
-     * @param userId - идентификатор эталонного пользователя
-     * @return - сопоставление ид - количество общих фильмов
-     */
-    private Map<Integer, Integer> getUsersIdAndNumberSharedFilms(int userId) {
-        HashMap<Integer, List<Integer>> usersIdToFilmsId = new HashMap<>();
-        //Получить сопоставление идентификаторов всех пользователей и понравившихся им фильмов
-        getUsersId().stream()
-                .forEach(userIdentifier -> usersIdToFilmsId.put(userIdentifier, getFilmsThatUserLikes(userIdentifier).get()));
-        //Удалить идентификатор основного пользователя чтобы он не обрабатывался
-        usersIdToFilmsId.remove(userId);
-        //Получить сопоставление идентификаторов пользователей и количества общих фильмов
-        Map<Integer, Integer> usersIdSharedFilms = new HashMap<>();
-        usersIdToFilmsId.entrySet().stream()
-                .forEach(entry -> {
-                    int quantitySharedFilms = getSharedFilms(getFilmsThatUserLikes(userId).get(), entry.getValue()).size();
-                    usersIdSharedFilms.put(entry.getKey(), quantitySharedFilms);
-                });
-        return usersIdSharedFilms;
-    }
-
-    /**
-     * Получить идентификаторы всех пользователей
-     *
-     * @return - группа идентификаторов пользователей
-     */
-    private List<Integer> getUsersId() {
-        String sqlSelectUsersId = "SELECT user_liked_id FROM likes";
-        //Функция фильтрации пользователей без параметров. Возвращает всех пользователей.
-        Function<Integer, List<Integer>> getUsersIdFunc = (emptyValue) -> likeStorage.getJdbcTemplate().query(sqlSelectUsersId, (rs, rowNum) -> rs.getInt("user_liked_id"));
-        List<Integer> usersId = likeStorage.sortingOrFiltering(getUsersIdFunc, null);
-        return usersId;
-    }
-
-    /**
-     * Получить идентификаторы рекомендуемых фильмов
-     *
-     * @param userId           - идентификатор основного пользователя
-     * @param anotherFilmLover - идентификатор второго пользователя
-     * @return - группа идентификаторов фильмо которые рекомендуются
-     */
-    List<Integer> getRecommendedFilmsId(Integer userId, Integer anotherFilmLover) {
-        //Получить идентификаторы фильмов для пользователя и его коллеги
-        List<Integer> userFilmsId = getFilmsThatUserLikes(userId).get();
-        List<Integer> anotherFilmLoverFilmsId = getFilmsThatUserLikes(anotherFilmLover).get();
-
-        //Вернуть разницу между фильмами. Т.е. рекомендуемые фильмы.
-        if (userFilmsId.size() > anotherFilmLoverFilmsId.size()) {
-            userFilmsId.removeAll(anotherFilmLoverFilmsId);
-            return userFilmsId;
-        } else {
-            anotherFilmLoverFilmsId.removeAll(userFilmsId);
-            return anotherFilmLoverFilmsId;
-        }
-    }
-
     public List<Film> searchFilms(String query, String params) {
-        List<Film> films = filmStorage.searchFilms(query,params);
+        List<Film> films = filmStorage.searchFilms(query, params);
         filmParameterStorage.loadFilmParameters(films);
         return films;
     }

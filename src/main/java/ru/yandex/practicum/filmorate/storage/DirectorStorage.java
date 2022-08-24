@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @AllArgsConstructor
@@ -34,7 +35,7 @@ public class DirectorStorage {
             stmt.setString(1, director.getName());
             return stmt;
         }, keyHolder);
-        director.setId(keyHolder.getKey().intValue());
+        director.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         log.debug("Сохранен режиссер {}", director.getName());
         return director;
     }
