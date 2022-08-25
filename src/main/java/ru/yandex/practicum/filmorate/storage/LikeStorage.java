@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ServerException;
@@ -8,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.List;
 import java.util.function.Function;
 
+@Slf4j
 @Component
 public class LikeStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -55,5 +57,14 @@ public class LikeStorage {
      */
     public <T, R> R sortingOrFiltering(Function<T, R> function, T parameter) {
         return function.apply(parameter);
+    }
+
+    public void updateFilmRatingById(int filmId) {
+        String sql = "update FILMS set RATING = " +
+                "(select avg(RATE) from LIKES" +
+                " where LIKES.FILM_ID = ?)" +
+                " where FILM_ID = ?";
+        jdbcTemplate.update(sql, filmId, filmId);
+        log.debug("Обновлен рейтинг фильма с индексом {}.", filmId);
     }
 }

@@ -22,11 +22,13 @@ public class LikeService {
             throw new ValidationException("Оценка фильма должна быть в диапазоне от 1 до 10 включительно.");
         }
         likeStorage.addLike(filmID, userID, rate);
+        likeStorage.updateFilmRatingById(filmID);
         userStorage.addEvent(userID,filmID,"LIKE","ADD");
     }
 
     public void deleteLike(Integer filmID, Integer userID) {
         likeStorage.deleteLike(filmID, userID);
+        likeStorage.updateFilmRatingById(filmID);
         userStorage.addEvent(userID,filmID,"LIKE","REMOVE");
     }
 
