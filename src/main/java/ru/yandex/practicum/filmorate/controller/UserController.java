@@ -7,8 +7,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Event;
 
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.FriendService;
+import ru.yandex.practicum.filmorate.service.RecommendationService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
@@ -20,12 +20,13 @@ public class UserController {
 
     private final UserService userService;
     private final FriendService friendService;
-    private final FilmService filmService;
+    private final RecommendationService recommendationService;
 
-    public UserController(UserService userService, FriendService friendService, FilmService filmService) {
+    public UserController(UserService userService, FriendService friendService,
+                          RecommendationService recommendationService) {
         this.userService = userService;
         this.friendService = friendService;
-        this.filmService = filmService;
+        this.recommendationService = recommendationService;
     }
 
     @GetMapping
@@ -81,6 +82,6 @@ public class UserController {
 
     @GetMapping("/{id}/recommendations")
     public List<Film> getRecommendations(@PathVariable int id) {
-        return filmService.getRecommendations(id).get();
+        return recommendationService.getRecommendations(id);
     }
 }
