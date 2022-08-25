@@ -9,8 +9,6 @@ import ru.yandex.practicum.filmorate.storage.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
