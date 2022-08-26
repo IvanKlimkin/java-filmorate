@@ -96,7 +96,7 @@ public class FilmParameterStorage {
             List<Genre> genres = new ArrayList<>();
             List<Director> directors = new ArrayList<>();
             for (FilmParameter filmParameter : allFilmsParameter) {
-                if (film.getId().equals(filmParameter.getFilmId())){
+                if (film.getId().equals(filmParameter.getFilmId())) {
                     if (filmParameter.getFilmParameterNum() == 0) {
                         genres.add(
                                 new Genre(filmParameter.getParameterId(), filmParameter.getParameterName()));
@@ -104,7 +104,8 @@ public class FilmParameterStorage {
                         directors.add(
                                 new Director(filmParameter.getParameterId(), filmParameter.getParameterName()));
                     }
-            }}
+                }
+            }
             film.setGenres(new HashSet<>(genres));
             film.setDirectors(new HashSet<>(directors));
         }

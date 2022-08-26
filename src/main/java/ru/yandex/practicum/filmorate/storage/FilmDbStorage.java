@@ -12,11 +12,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -57,7 +55,7 @@ public class FilmDbStorage implements FilmStorage {
             sql = "select FILMS.*,MPA_NAME from FILMS join MPA M on FILMS.MPA_ID = M.MPA_ID" +
                     " left join LIKES L on FILMS.FILM_ID = L.FILM_ID " +
                     "join FILM_DIRECTOR FD on FILMS.FILM_ID = FD.FILM_ID" +
-                    " where FD.DIRECTOR_ID=? group by FILMS.FILM_ID ORDER BY AVG(RATING), COUNT(L.USER_LIKED_ID) DESC";
+                    " where FD.DIRECTOR_ID=? group by FILMS.FILM_ID ORDER BY (AVG(RATING), COUNT(L.USER_LIKED_ID)) DESC";
         }
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), director.getId());
     }
@@ -72,7 +70,7 @@ public class FilmDbStorage implements FilmStorage {
                     filmRows.getInt("FILM_ID"),
                     filmRows.getString("NAME"),
                     filmRows.getString("DESCRIPTION"),
-                    filmRows.getDate("RELEASE_DATE").toLocalDate(),
+                    Objects.requireNonNull(filmRows.getDate("RELEASE_DATE")).toLocalDate(),
                     filmRows.getInt("DURATION"),
                     new Mpa(filmRows.getInt("MPA_ID"), filmRows.getString("MPA_NAME")),
                     new HashSet<>(),
@@ -108,7 +106,7 @@ public class FilmDbStorage implements FilmStorage {
             stmt.setInt(5, mpa_id);
             return stmt;
         }, keyHolder);
-        film.setId(keyHolder.getKey().intValue());
+        film.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         log.debug("Сохранен фильм {}", film.getName());
         return film;
     }
@@ -185,7 +183,7 @@ public class FilmDbStorage implements FilmStorage {
                 "left join LIKES L ON F.FILM_ID = L.FILM_ID " +
                 "where YEAR(F.RELEASE_DATE) = ? " +
                 "group by F.FILM_ID, L.USER_LIKED_ID " +
-                "ORDER BY AVG(RATING), COUNT(L.USER_LIKED_ID) DESC limit ?";
+                "ORDER BY (AVG(RATING), COUNT(L.USER_LIKED_ID)) DESC limit ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), year, limit);
     }
 
@@ -196,7 +194,7 @@ public class FilmDbStorage implements FilmStorage {
                 "left join FILM_GENRE FG ON F.FILM_ID = FG.FILM_ID " +
                 "where FG.GENRE_ID = ? " +
                 "group by F.FILM_ID, L.USER_LIKED_ID, FG.GENRE_ID " +
-                "ORDER BY AVG(RATING), COUNT(L.USER_LIKED_ID) DESC limit ?";
+                "ORDER BY (AVG(RATING), COUNT(L.USER_LIKED_ID)) DESC limit ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), genreId, limit);
     }
 
@@ -207,7 +205,7 @@ public class FilmDbStorage implements FilmStorage {
                 "left join FILM_GENRE FG ON F.FILM_ID = FG.FILM_ID " +
                 "where FG.GENRE_ID = ? AND YEAR(F.RELEASE_DATE) = ? " +
                 "group by F.FILM_ID, L.USER_LIKED_ID " +
-                "ORDER BY AVG(RATING), COUNT(L.USER_LIKED_ID) DESC limit ?";
+                "ORDER BY (AVG(RATING), COUNT(L.USER_LIKED_ID)) DESC limit ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), genreId, year, limit);
     }
 }

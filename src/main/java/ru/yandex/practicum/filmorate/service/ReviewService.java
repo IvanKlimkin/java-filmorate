@@ -22,7 +22,7 @@ public class ReviewService {
     public Review createReview(Review review) {
         checkReview(review);
         Review newReview = reviewStorage.createReview(review);
-        userStorage.addEvent(newReview.getUserId(),newReview.getReviewId(),"REVIEW","ADD");
+        userStorage.addEvent(newReview.getUserId(), newReview.getReviewId(), "REVIEW", "ADD");
         return newReview;
     }
 
@@ -31,14 +31,14 @@ public class ReviewService {
         updateUsefulOfReview(review);
 
         Review updReview = reviewStorage.updateReview(review);
-        userStorage.addEvent(updReview.getUserId(),updReview.getReviewId(),"REVIEW","UPDATE");
+        userStorage.addEvent(updReview.getUserId(), updReview.getReviewId(), "REVIEW", "UPDATE");
         return updReview;
     }
 
     public void deleteReview(int id) {
         checkReviewId(id);
         userStorage.addEvent(
-                getReviewById(id).getUserId(),id,"REVIEW","REMOVE");
+                getReviewById(id).getUserId(), id, "REVIEW", "REMOVE");
         reviewStorage.deleteReview(id);
     }
 

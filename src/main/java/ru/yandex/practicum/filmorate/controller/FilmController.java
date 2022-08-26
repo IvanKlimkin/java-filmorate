@@ -50,7 +50,7 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     public void likeFilm(@PathVariable Integer id, @PathVariable Integer userId,
-                         @RequestParam (required = false, defaultValue = "6") Integer rate) {
+                         @RequestParam(required = false, defaultValue = "6") Integer rate) {
         likeService.addLike(id, userId, rate);
     }
 
@@ -79,6 +79,6 @@ public class FilmController {
 
     @GetMapping("/search")
     public List<Film> searchFilms(@RequestParam(name = "query") String query, @RequestParam(name = "by", required = false) String params) {
-        return filmService.searchFilms(query,params);
+        return filmService.searchFilms(query, params);
     }
 }
