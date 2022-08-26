@@ -7,9 +7,11 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.*;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -25,19 +27,29 @@ public class UserDbStorage implements UserStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Override
-    public List<User> getAllUsers() {
-        String sql = "select * from USERS";
-        return jdbcTemplate.query(sql, ((rs, rowNum) -> makeUser(rs)));
-    }
-
-    static public User makeUser(ResultSet rs) throws SQLException {
+    public static User makeUser(ResultSet rs) throws SQLException {
         Integer id = rs.getInt("USER_ID");
         String email = rs.getString("EMAIL");
         String login = rs.getString("LOGIN");
         LocalDate birthday = rs.getDate("BIRTHDAY").toLocalDate();
         String name = rs.getString("USER_NAME");
         return new User(id, email, login, birthday, name);
+    }
+
+    public Event makeEvent(ResultSet rs) throws SQLException {
+        return new Event(rs.getInt("EVENT_ID"),
+                rs.getInt("USER_ID"),
+                rs.getInt("ENTITY_ID"),
+                rs.getString("EVENT_TYPE"),
+                rs.getString("OPERATION"),
+                rs.getLong("TIMESTAMP")
+                );
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        String sql = "select * from USERS";
+        return jdbcTemplate.query(sql, ((rs, rowNum) -> makeUser(rs)));
     }
 
     @Override
@@ -60,6 +72,24 @@ public class UserDbStorage implements UserStorage {
             log.info("Пользователь с идентификатором {} не найден. ", ID);
             return Optional.empty();
         }
+    }
+
+    @Override
+    public List<Event> getUserFeed(User user){
+        String sql = "select EVENTS.* from EVENTS where USER_ID=?";
+        return jdbcTemplate.query(sql, ((rs, rowNum) -> makeEvent(rs)),user.getId());
+    }
+
+    @Override
+    public void addEvent(Integer userId, Integer entityId, String eventType, String operation){
+        String sql = "insert into EVENTS (USER_ID,ENTITY_ID,EVENT_TYPE,OPERATION,TIMESTAMP) values (?,?,?,?,?)";
+        jdbcTemplate.update(sql,
+                userId,
+                entityId,
+                eventType,
+                operation,
+                Date.from(Instant.now()).getTime()
+        );
     }
 
     @Override
