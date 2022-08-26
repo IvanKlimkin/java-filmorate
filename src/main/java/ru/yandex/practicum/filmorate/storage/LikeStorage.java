@@ -77,17 +77,16 @@ public class LikeStorage {
     public List<Integer> findRecommendedFilmIds(int userId) {
         List<Rate> likedFilmIdsAndRate = getRatesByUserID(userId); // фильмы и оценки, оцененные самим пользователем
         List<Integer> userIdsWithSameRates = new ArrayList<>(); // пользователи с похожими оценками
-        try {
-            for (Rate rate : likedFilmIdsAndRate) {
-                String sql = "select L.USER_LIKED_ID from LIKES L " +
-                        "where (L.FILM_ID = ? and L.RATE >= (? - 2) and L.RATE <= (? + 2))";
-                userIdsWithSameRates.addAll(jdbcTemplate.queryForList(sql, Integer.class, rate.getFilmId(), rate.getRate(),
-                        rate.getRate())); //
-            }
+        for (Rate rate : likedFilmIdsAndRate) {
+            String sql = "select L.USER_LIKED_ID from LIKES L " +
+                    "where (L.FILM_ID = ? and L.RATE >= (? - 2) and L.RATE <= (? + 2))";
+            userIdsWithSameRates.addAll(jdbcTemplate.queryForList(sql, Integer.class, rate.getFilmId(), rate.getRate(),
+                    rate.getRate())); //
             userIdsWithSameRates.remove((Integer) userId); //убрать собственный id
-        } catch (EmptyResultDataAccessException e) { // если иных оценок нет или совпадает с оценкой пользователя
-            System.out.println(e.getMessage());
-            return new ArrayList<>();
+
+            if (userIdsWithSameRates.isEmpty()) {
+                return new ArrayList<>();
+            }
         }
         List<Integer> filmIdsRatedByUsersWithSameTastesButNotLikedByUser = new ArrayList<>();
         for (Integer userIdWithSomeTastes : userIdsWithSameRates) {
