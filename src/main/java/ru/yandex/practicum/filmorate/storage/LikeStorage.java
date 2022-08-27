@@ -17,9 +17,11 @@ import java.util.ListIterator;
 @Component
 public class LikeStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final FilmDbStorage filmDbStorage;
 
-    public LikeStorage(JdbcTemplate jdbcTemplate) {
+    public LikeStorage(JdbcTemplate jdbcTemplate, FilmDbStorage filmDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
+        this.filmDbStorage = filmDbStorage;
     }
 
     public void addLike(Integer filmID, Integer userID, Integer rate) {
@@ -48,7 +50,7 @@ public class LikeStorage {
                 "COUNT_POSITIVE, " +
                 "COUNT_NEGATIVE) DESC" +
                 " LIMIT ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> FilmDbStorage.makeFilm(rs), count);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> filmDbStorage.makeFilm(rs), count);
     }
 
     public List<Integer> findRecommendedFilmIds(int userId) {
@@ -56,7 +58,7 @@ public class LikeStorage {
         List<Integer> userIdsWithSameRates = new ArrayList<>(); // пользователи с похожими оценками
         for (Rate rate : likedFilmIdsAndRate) {
             String sql = "select L.USER_LIKED_ID from LIKES L " +
-                    "where (L.FILM_ID = ? and L.RATE >= (? - 2) and L.RATE <= (? + 2))";
+                    "where (L.FILM_ID = ? and L.RATE >= (? - 2) and L.RATE <= (? + 2) and L.RATE > 5)";
             userIdsWithSameRates.addAll(jdbcTemplate.queryForList(sql, Integer.class, rate.getFilmId(), rate.getRate(),
                     rate.getRate())); //
             userIdsWithSameRates.remove((Integer) userId); //убрать собственный id
@@ -86,6 +88,18 @@ public class LikeStorage {
         if (filmIdsRatedByUsersWithSameTastesButNotLikedByUser.isEmpty()) {
             return new ArrayList<>();
         } else return filmIdsRatedByUsersWithSameTastesButNotLikedByUser;
+    }
+
+    public List<Film> newFindRecommendedFilmIds(int userId) {
+        String sql1 = "select FILM_ID, RATE from LIKES " +
+                "where USER_LIKED_ID = ?";
+        List<Rate> likedFilmIdsAndRate = new ArrayList<>(jdbcTemplate.query(sql1, (rs, rowNum) -> makeRate(rs), userId));
+
+        String sql = "select F.* from FILMS F " +
+                "left join LIKES L on F.FILM_ID = L.FILM_ID " +
+                "where L.USER_LIKED_ID = ?";
+
+        return new ArrayList<>(jdbcTemplate.query(sql, (rs, rowNum) -> filmDbStorage.makeFilm(rs), userId));
     }
 
     private List<Rate> getRatesByUserID(int userId) {

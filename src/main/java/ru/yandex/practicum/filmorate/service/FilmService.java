@@ -37,8 +37,7 @@ public class FilmService {
     }
 
     public Collection<Film> getAllFilms() {
-        List<Film> films = filmStorage.getAllFilms();
-        return filmParameterStorage.loadFilmParameters(films);
+        return filmStorage.getAllFilms();
     }
 
     public Film createFilm(Film film) {
@@ -65,7 +64,7 @@ public class FilmService {
     public Film getFilm(Integer id) {
         Film film = filmStorage.getFilmByID(id).orElseThrow(
                 () -> new ServerException(String.format("Фильм с ID=%d не найден", id)));
-        return filmParameterStorage.loadFilmParameters(Collections.singletonList(film)).get(0);
+        return Collections.singletonList(film).get(0);
     }
 
     public void deleteFilm(Integer Id) {
@@ -76,7 +75,6 @@ public class FilmService {
     public List<Film> getSortedFilms(Integer directorId, String sort) {
         List<Film> filteredFilms = filmStorage.getSortedFilms(
                 directorService.getDirectorById(directorId), sort);
-        filmParameterStorage.loadFilmParameters(filteredFilms);
         if (sort.equals("year")) {
             return filteredFilms.stream()
                     .sorted(Comparator.comparing(Film::getReleaseDate))
@@ -98,18 +96,15 @@ public class FilmService {
             //фильмы по заданному жанру и по заданному году
             films = filmStorage.getMostPopularFilmsByGenreAndYear(genreId, year, limit);
         }
-        return filmParameterStorage.loadFilmParameters(films);
+        return films;
     }
 
     public Optional<List<Film>> getSharedFilmsWithFriend(int userId, int friendId) {
         List<Film> films = filmStorage.getSharedFilmsWithFriend(userId, friendId);
-        filmParameterStorage.loadFilmParameters(films);
         return Optional.of(films);
     }
 
     public List<Film> searchFilms(String query, String params) {
-        List<Film> films = filmStorage.searchFilms(query, params);
-        filmParameterStorage.loadFilmParameters(films);
-        return films;
+        return filmStorage.searchFilms(query, params);
     }
 }

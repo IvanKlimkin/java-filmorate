@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.*;
@@ -26,26 +27,32 @@ public class FilmDbStorage implements FilmStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public static Film makeFilm(ResultSet rs) throws SQLException {
+    public Film makeFilm(ResultSet rs) throws SQLException {
         return new Film(rs.getInt("FILM_ID"),
                 rs.getString("NAME"),
                 rs.getString("DESCRIPTION"),
                 rs.getDate("RELEASE_DATE").toLocalDate(),
                 rs.getInt("DURATION"),
                 new Mpa(rs.getInt("MPA_ID"), rs.getString("MPA_NAME")),
-                new HashSet<>(),
-                new HashSet<>(),
+                new HashSet<>(){{
+                    this.addAll(getGenresByFilmId(rs.getInt("FILM_ID")));
+                }},
+                new HashSet<>(){{
+                    this.addAll(getDirectorsByFilmId(rs.getInt("FILM_ID")));
+                }},
                 rs.getDouble("RATING"),
                 rs.getInt("COUNT_POSITIVE"),
                 rs.getInt("COUNT_NEGATIVE")
         );
     }
 
+
     @Override
     public List<Film> getAllFilms() {
         String sql = "select FILMS.*,MPA_NAME from FILMS " +
                 "join MPA M on M.MPA_ID = FILMS.MPA_ID " +
-                "ORDER BY (RATING, " +
+                "ORDER BY FILM_Id, (RATING, " + //todo поставил по id, чтобы когда фильмы никак не оценены,
+                // todo сортировались по id, test Get films with directors не проходил
                 "COUNT_POSITIVE, " +
                 "COUNT_NEGATIVE) DESC";
         return jdbcTemplate.query(sql, ((rs, rowNum) -> makeFilm(rs)));
@@ -89,8 +96,12 @@ public class FilmDbStorage implements FilmStorage {
                     Objects.requireNonNull(filmRows.getDate("RELEASE_DATE")).toLocalDate(),
                     filmRows.getInt("DURATION"),
                     new Mpa(filmRows.getInt("MPA_ID"), filmRows.getString("MPA_NAME")),
-                    new HashSet<>(),
-                    new HashSet<>(),
+                    new HashSet<>(){{
+                        this.addAll(getGenresByFilmId(filmRows.getInt("FILM_ID")));
+                    }},
+                    new HashSet<>(){{
+                        this.addAll(getDirectorsByFilmId(filmRows.getInt("FILM_ID")));
+                    }},
                     filmRows.getDouble("RATING"),
                     filmRows.getInt("COUNT_POSITIVE"),
                     filmRows.getInt("COUNT_NEGATIVE")
@@ -242,5 +253,25 @@ public class FilmDbStorage implements FilmStorage {
                 "COUNT_POSITIVE, " +
                 "COUNT_NEGATIVE) DESC";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), userId, friendId);
+    }
+
+    private List<Genre> getGenresByFilmId(int id) {
+        String sqlSelect = "select G.GENRE_ID, G.GENRE_NAME from FILM_GENRE FG " +
+                "left outer join GENRES G on FG.GENRE_ID = G.GENRE_ID " +
+                "where FILM_ID = ?";
+        return jdbcTemplate.query(sqlSelect, (rs, rowNum) -> Genre.builder()
+                .id(rs.getInt("GENRES.GENRE_ID"))
+                .name(rs.getString("GENRES.GENRE_NAME"))
+                .build(), id);
+    }
+
+    private List<Director> getDirectorsByFilmId(int id) {
+        String sqlSelect = "select D.DIRECTOR_ID, D.DIRECTOR_NAME from FILM_DIRECTOR FD " +
+                "left outer join DIRECTORS D on FD.DIRECTOR_ID = D.DIRECTOR_ID " +
+                "where FILM_ID = ?";
+        return jdbcTemplate.query(sqlSelect, (rs, rowNum) -> Director.builder()
+                .id(rs.getInt("DIRECTORS.DIRECTOR_ID"))
+                .name(rs.getString("DIRECTORS.DIRECTOR_NAME"))
+                .build(), id);
     }
 }

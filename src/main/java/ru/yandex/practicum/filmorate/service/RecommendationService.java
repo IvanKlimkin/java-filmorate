@@ -17,18 +17,17 @@ import java.util.stream.Collectors;
 public class RecommendationService {
     private final LikeStorage likeStorage;
     private final FilmStorage filmStorage;
-    private final FilmParameterStorage filmParameterStorage;
 
     public List<Film> getRecommendations(int userId) {
-        List<Integer> recommendedFilmIds = likeStorage.findRecommendedFilmIds(userId);
+        List<Integer> recommendedFilmIds = likeStorage.findRecommendedFilmIds(userId); // получаем не сортированные id фильмов
         if (recommendedFilmIds.isEmpty()) {
             return new ArrayList<>();
         }
         List<Film> recommendedFilms = new ArrayList<>();
-        for (Integer filmId : recommendedFilmIds) {
+        for (Integer filmId : recommendedFilmIds) { // получаем по ним не сортированные фильмы
             recommendedFilms.add(filmStorage.getFilmByID(filmId).get());
         }
-        filmParameterStorage.loadFilmParameters(recommendedFilms);
+        //filmParameterStorage.loadFilmParameters(recommendedFilms); // сортируем
         Comparator<Film> sortByRate = (o1, o2) -> {
             if (o1.getRating() > o2.getRating()) {
                 return 1;
@@ -38,6 +37,6 @@ public class RecommendationService {
                 return o2.getId() - o1.getId();
             }
         };
-        return recommendedFilms.stream().sorted(sortByRate).collect(Collectors.toList());
+        return recommendedFilms.stream().sorted(sortByRate).collect(Collectors.toList()); // сортируем
     }
 }

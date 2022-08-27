@@ -10,6 +10,7 @@ import javax.validation.constraints.NotBlank;
 @RequiredArgsConstructor
 @ToString
 @EqualsAndHashCode(of = "id")
+@Builder
 public class Director {
     private Integer id;
     @NotBlank(message = "Необходимо задать имя Режиссера")
