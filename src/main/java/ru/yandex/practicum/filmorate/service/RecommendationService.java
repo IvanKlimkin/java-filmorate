@@ -27,7 +27,7 @@ public class RecommendationService {
         for (Integer filmId : recommendedFilmIds) { // получаем по ним не сортированные фильмы
             recommendedFilms.add(filmStorage.getFilmByID(filmId).get());
         }
-        //filmParameterStorage.loadFilmParameters(recommendedFilms); // сортируем
+        // сортируем
         Comparator<Film> sortByRate = (o1, o2) -> {
             if (o1.getRating() > o2.getRating()) {
                 return 1;

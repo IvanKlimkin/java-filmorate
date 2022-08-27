@@ -56,8 +56,8 @@ public class FilmService {
     public Film updateFilm(Film film) {
         getFilm(film.getId());
         validate(film);
-        filmStorage.updateFilm(film);
         filmParameterStorage.setFilmParameter(film);
+        filmStorage.updateFilm(film);
         return film;
     }
 

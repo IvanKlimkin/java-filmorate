@@ -22,6 +22,7 @@ public class LikeStorage {
     public LikeStorage(JdbcTemplate jdbcTemplate, FilmDbStorage filmDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.filmDbStorage = filmDbStorage;
+        //todo прошу простить за эту инъекцию, чисто для скорости, makeFilm static не получилось, jdbcTemplate не дает
     }
 
     public void addLike(Integer filmID, Integer userID, Integer rate) {
@@ -91,13 +92,13 @@ public class LikeStorage {
     }
 
     public List<Film> newFindRecommendedFilmIds(int userId) {
-        String sql1 = "select FILM_ID, RATE from LIKES " +
-                "where USER_LIKED_ID = ?";
-        List<Rate> likedFilmIdsAndRate = new ArrayList<>(jdbcTemplate.query(sql1, (rs, rowNum) -> makeRate(rs), userId));
 
         String sql = "select F.* from FILMS F " +
                 "left join LIKES L on F.FILM_ID = L.FILM_ID " +
-                "where L.USER_LIKED_ID = ?";
+                "where L.USER_LIKED_ID in " +
+                "   (select L.USER_LIKED_ID from LIKES L " +
+                "   where L.FILM_ID in " +
+                "       ())";
 
         return new ArrayList<>(jdbcTemplate.query(sql, (rs, rowNum) -> filmDbStorage.makeFilm(rs), userId));
     }
@@ -114,6 +115,15 @@ public class LikeStorage {
     }
 
     private void updateFilmRatingAndCountsById(int filmId) {
+        String sqlIsEmpty = "select FILM_ID from LIKES " +
+                "where FILM_ID = ?";
+        if (jdbcTemplate.queryForList(sqlIsEmpty, filmId).isEmpty()) {
+            String sqlUpdate = "update FILMS set RATING = 0.0, " +
+                    "COUNT_POSITIVE = 0, " +
+                    "COUNT_NEGATIVE = 0 " +
+                    "where FILM_ID = ?";
+            jdbcTemplate.update(sqlUpdate, filmId);
+        }
         String sql = "update FILMS set RATING = " +
                 "(select avg(RATE) from LIKES " +
                 "where LIKES.FILM_ID = ?), " +
@@ -127,6 +137,7 @@ public class LikeStorage {
                 "and LIKES.POSITIVITY = -1) " +
                 "where FILM_ID = ?";
         jdbcTemplate.update(sql, filmId, filmId, filmId, filmId);
+
         log.debug("Обновлен рейтинг фильма с индексом {}.", filmId);
     }
 }

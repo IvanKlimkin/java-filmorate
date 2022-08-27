@@ -46,15 +46,14 @@ public class FilmDbStorage implements FilmStorage {
         );
     }
 
-
     @Override
     public List<Film> getAllFilms() {
-        String sql = "select FILMS.*,MPA_NAME from FILMS " +
+        String sql = "select FILMS.*, MPA_NAME from FILMS " +
                 "join MPA M on M.MPA_ID = FILMS.MPA_ID " +
-                "ORDER BY FILM_Id, (RATING, " + //todo поставил по id, чтобы когда фильмы никак не оценены,
-                // todo сортировались по id, test Get films with directors не проходил
-                "COUNT_POSITIVE, " +
-                "COUNT_NEGATIVE) DESC";
+                "ORDER BY RATING DESC, " +
+                "COUNT_POSITIVE DESC, " +
+                "COUNT_NEGATIVE DESC, " +
+                "FILM_ID";
         return jdbcTemplate.query(sql, ((rs, rowNum) -> makeFilm(rs)));
     }
 
@@ -118,7 +117,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film createFilm(Film film) {
-        String sql = "insert into FILMS (NAME,DESCRIPTION,RELEASE_DATE,DURATION,MPA_ID) values (?,?,?,?,?)";
+        String sql = "insert into FILMS (NAME,DESCRIPTION,RELEASE_DATE,DURATION,MPA_ID, RATING, COUNT_POSITIVE, " +
+                "COUNT_NEGATIVE) values (?,?,?,?,?,?,?,?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"FILM_ID"});
@@ -133,6 +133,9 @@ public class FilmDbStorage implements FilmStorage {
             stmt.setInt(4, film.getDuration());
             Integer mpa_id = film.getMpa().getId();
             stmt.setInt(5, mpa_id);
+            stmt.setDouble(6, 0.0);
+            stmt.setInt(7, 0);
+            stmt.setInt(8, 0);
             return stmt;
         }, keyHolder);
         film.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
@@ -142,15 +145,21 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void updateFilm(Film film) {
-        String sql = "update FILMS set NAME = ?,DESCRIPTION = ?,RELEASE_DATE = ?,DURATION = ?,MPA_ID = ? where " +
+        String sql = "merge into FILMS (FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, RATING, " +
+                "COUNT_POSITIVE, COUNT_NEGATIVE) " +
+                "values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql1 = "update FILMS set NAME = ?,DESCRIPTION = ?,RELEASE_DATE = ?,DURATION = ?,MPA_ID = ? where " +
                 "FILM_ID = ?";
         jdbcTemplate.update(sql,
+                film.getId(),
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
                 film.getMpa().getId(),
-                film.getId());
+                film.getRating(),
+                film.getCountPositive(),
+                film.getCountNegative());
     }
 
     @Override
