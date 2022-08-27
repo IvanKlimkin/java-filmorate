@@ -8,7 +8,10 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.LikeService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -50,7 +53,7 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     public void likeFilm(@PathVariable Integer id, @PathVariable Integer userId,
-                         @RequestParam(required = false, defaultValue = "6") Integer rate) {
+                         @RequestParam(required = false, defaultValue = "6") @PositiveOrZero @Max(10) Integer rate) {
         likeService.addLike(id, userId, rate);
     }
 
@@ -62,8 +65,8 @@ public class FilmController {
     @GetMapping("/popular")
     public List<Film> getMostPopularFilms(
             @RequestParam(defaultValue = "10") @Positive Integer count,
-            @RequestParam(defaultValue = "0") int genreId,
-            @RequestParam(defaultValue = "0") int year) {
+            @RequestParam(defaultValue = "0") Integer genreId,
+            @RequestParam(defaultValue = "0") Integer year) {
         return filmService.getMostPopularFilms(genreId, year, count);
     }
 

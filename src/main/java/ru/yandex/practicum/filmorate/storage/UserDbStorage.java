@@ -61,7 +61,7 @@ public class UserDbStorage implements UserStorage {
                     userRows.getInt("USER_ID"),
                     userRows.getString("EMAIL"),
                     userRows.getString("LOGIN"),
-                    Objects.requireNonNull(userRows.getDate("BIRTHDAY")).toLocalDate(),
+                    userRows.getDate("BIRTHDAY").toLocalDate(),
                     userRows.getString("USER_NAME")
             );
             log.info(

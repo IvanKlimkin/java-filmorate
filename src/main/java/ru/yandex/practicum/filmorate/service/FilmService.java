@@ -82,7 +82,7 @@ public class FilmService {
         } else return filteredFilms;
     }
 
-    public List<Film> getMostPopularFilms(int genreId, int year, int limit) {
+    public List<Film> getMostPopularFilms(Integer genreId, Integer year, Integer limit) {
         List<Film> films;
         if (genreId == 0 && year == 0) {
             films = likeStorage.getAllSortedFilms(limit);

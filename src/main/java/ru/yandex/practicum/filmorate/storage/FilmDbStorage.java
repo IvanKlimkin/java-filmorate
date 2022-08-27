@@ -92,7 +92,7 @@ public class FilmDbStorage implements FilmStorage {
                     filmRows.getInt("FILM_ID"),
                     filmRows.getString("NAME"),
                     filmRows.getString("DESCRIPTION"),
-                    Objects.requireNonNull(filmRows.getDate("RELEASE_DATE")).toLocalDate(),
+                    filmRows.getDate("RELEASE_DATE").toLocalDate(),
                     filmRows.getInt("DURATION"),
                     new Mpa(filmRows.getInt("MPA_ID"), filmRows.getString("MPA_NAME")),
                     new HashSet<>(){{
