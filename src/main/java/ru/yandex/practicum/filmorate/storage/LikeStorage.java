@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ServerException;
@@ -25,14 +24,22 @@ public class LikeStorage {
     }
 
     public void addLike(Integer filmID, Integer userID, Integer rate) {
-        String sql = "merge into LIKES (FILM_ID, USER_LIKED_ID, RATE) values (?, ?, ?)";
-        jdbcTemplate.update(sql, filmID, userID, rate);
+        int positivity;
+        if (rate > 5) {
+            positivity = 1;
+        } else {
+            positivity = -1;
+        }
+        String sql = "merge into LIKES (FILM_ID, USER_LIKED_ID, RATE, POSITIVITY) values (?, ?, ?, ?)";
+        jdbcTemplate.update(sql, filmID, userID, rate, positivity);
+        updateFilmRatingAndCountsById(filmID);
     }
 
     public void deleteLike(Integer filmID, Integer userID) {
         String sql = "delete from LIKES WHERE FILM_ID=? and USER_LIKED_ID=?";
         int count = jdbcTemplate.update(sql, filmID, userID);
         if (count == 0) throw new ServerException(String.format("Лайк с ID=%d не найден", userID));
+        updateFilmRatingAndCountsById(filmID);
     }
 
     public List<Film> getAllSortedFilms(Integer count) {
@@ -63,15 +70,6 @@ public class LikeStorage {
      */
     public <T, R> R sortingOrFiltering(Function<T, R> function, T parameter) {
         return function.apply(parameter);
-    }
-
-    public void updateFilmRatingById(int filmId) {
-        String sql = "update FILMS set RATING = " +
-                "(select avg(RATE) from LIKES" +
-                " where LIKES.FILM_ID = ?)" +
-                " where FILM_ID = ?";
-        jdbcTemplate.update(sql, filmId, filmId);
-        log.debug("Обновлен рейтинг фильма с индексом {}.", filmId);
     }
 
     public List<Integer> findRecommendedFilmIds(int userId) {
@@ -120,5 +118,22 @@ public class LikeStorage {
     private Rate makeRate(ResultSet rs) throws SQLException {
         return new Rate(rs.getInt("FILM_ID"),
                 rs.getInt("RATE"));
+    }
+
+    private void updateFilmRatingAndCountsById(int filmId) {
+        String sql = "update FILMS set RATING = " +
+                "(select avg(RATE) from LIKES " +
+                "where LIKES.FILM_ID = ?), " +
+                "COUNT_POSITIVE = " +
+                "(select sum(POSITIVITY) from LIKES " +
+                "where LIKES.FILM_ID = ? " +
+                "and LIKES.POSITIVITY = 1), " +
+                "COUNT_NEGATIVE = " +
+                "(select sum(POSITIVITY) from LIKES " +
+                "where LIKES.FILM_ID = ? " +
+                "and LIKES.POSITIVITY = -1) " +
+                "where FILM_ID = ?";
+        jdbcTemplate.update(sql, filmId, filmId, filmId, filmId);
+        log.debug("Обновлен рейтинг фильма с индексом {}.", filmId);
     }
 }

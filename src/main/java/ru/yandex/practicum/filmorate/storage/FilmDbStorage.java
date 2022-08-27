@@ -35,7 +35,9 @@ public class FilmDbStorage implements FilmStorage {
                 new Mpa(rs.getInt("MPA_ID"), rs.getString("MPA_NAME")),
                 new HashSet<>(),
                 new HashSet<>(),
-                rs.getDouble("RATING")
+                rs.getDouble("RATING"),
+                rs.getInt("COUNT_POSITIVE"),
+                rs.getInt("COUNT_NEGATIVE")
         );
     }
 
@@ -75,7 +77,9 @@ public class FilmDbStorage implements FilmStorage {
                     new Mpa(filmRows.getInt("MPA_ID"), filmRows.getString("MPA_NAME")),
                     new HashSet<>(),
                     new HashSet<>(),
-                    filmRows.getDouble("RATING")
+                    filmRows.getDouble("RATING"),
+                    filmRows.getInt("COUNT_POSITIVE"),
+                    filmRows.getInt("COUNT_NEGATIVE")
             );
             log.info(
                     "Найден фильм: {} {}",
@@ -136,7 +140,7 @@ public class FilmDbStorage implements FilmStorage {
         String sql;
         if (params.contains("title") && params.contains("director")) {
             sql = "select f.FILM_ID, f.NAME, f.DESCRIPTION, " +
-                    "f.RELEASE_DATE, f.DURATION, f.MPA_ID, f.RATING, m.MPA_NAME " +
+                    "f.RELEASE_DATE, f.DURATION, f.MPA_ID, f.RATING, f.COUNT_POSITIVE, f.COUNT_NEGATIVE, m.MPA_NAME " +
                     "from FILMS f " +
                     "join MPA m on m.MPA_ID = f.MPA_ID " +
                     "left join FILM_DIRECTOR fd on fd.FILM_ID = f.FILM_ID " +
@@ -150,7 +154,7 @@ public class FilmDbStorage implements FilmStorage {
             filmList = jdbcTemplate.query(sql, ((rs, rowNum) -> makeFilm(rs)), lowerQuery, lowerQuery);
         } else if (params.equals("director")) {
             sql = "select f.FILM_ID, f.NAME, f.DESCRIPTION, " +
-                    "f.RELEASE_DATE, f.DURATION, f.MPA_ID, f.RATING, m.MPA_NAME " +
+                    "f.RELEASE_DATE, f.DURATION, f.MPA_ID, f.RATING, f.COUNT_POSITIVE, f.COUNT_NEGATIVE, m.MPA_NAME " +
                     "from FILMS f " +
                     "left join FILM_DIRECTOR fd on fd.FILM_ID = f.FILM_ID " +
                     "left join DIRECTORS d on fd.DIRECTOR_ID = d.DIRECTOR_ID " +
@@ -163,7 +167,7 @@ public class FilmDbStorage implements FilmStorage {
             filmList = jdbcTemplate.query(sql, ((rs, rowNum) -> makeFilm(rs)), lowerQuery);
         } else if (params.equals("title")) {
             sql = "select f.FILM_ID, f.NAME, f.DESCRIPTION, " +
-                    "f.RELEASE_DATE, f.DURATION, f.MPA_ID, f.RATING, m.MPA_NAME " +
+                    "f.RELEASE_DATE, f.DURATION, f.MPA_ID, f.RATING, f.COUNT_POSITIVE, f.COUNT_NEGATIVE, m.MPA_NAME " +
                     "from FILMS f " +
                     "join MPA m on m.MPA_ID = f.MPA_ID " +
                     "left join FILM_DIRECTOR fd on fd.FILM_ID = f.FILM_ID " +

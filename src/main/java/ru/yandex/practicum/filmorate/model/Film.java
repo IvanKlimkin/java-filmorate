@@ -30,5 +30,6 @@ public class Film {
     private Set<Genre> genres;
     private Set<Director> directors;
     private Double rating = 0.0;
-
+    private Integer countPositive = 0;
+    private Integer countNegative = 0;
 }
