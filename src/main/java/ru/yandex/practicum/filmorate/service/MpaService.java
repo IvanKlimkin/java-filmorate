@@ -12,7 +12,6 @@ import java.util.List;
 public class MpaService {
     private final MpaStorage mpaStorage;
 
-
     public List<Mpa> findAll() {
         return mpaStorage.findAll();
     }

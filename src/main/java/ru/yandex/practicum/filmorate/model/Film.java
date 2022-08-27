@@ -11,9 +11,9 @@ import java.util.Set;
 
 @Getter
 @Setter
-//@NoArgsConstructor
 @AllArgsConstructor
-@RequiredArgsConstructor
+@NoArgsConstructor
+//@RequiredArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Film {
     private Integer id = 0;
@@ -29,5 +29,7 @@ public class Film {
     private Mpa mpa;
     private Set<Genre> genres;
     private Set<Director> directors;
-
+    private double rating = 0.0;
+    private int countPositive = 0;
+    private int countNegative = 0;
 }

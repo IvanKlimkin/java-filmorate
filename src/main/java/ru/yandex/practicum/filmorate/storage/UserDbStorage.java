@@ -14,6 +14,7 @@ import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -43,7 +44,7 @@ public class UserDbStorage implements UserStorage {
                 rs.getString("EVENT_TYPE"),
                 rs.getString("OPERATION"),
                 rs.getLong("TIMESTAMP")
-                );
+        );
     }
 
     @Override
@@ -75,13 +76,13 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public List<Event> getUserFeed(User user){
+    public List<Event> getUserFeed(User user) {
         String sql = "select EVENTS.* from EVENTS where USER_ID=?";
-        return jdbcTemplate.query(sql, ((rs, rowNum) -> makeEvent(rs)),user.getId());
+        return jdbcTemplate.query(sql, ((rs, rowNum) -> makeEvent(rs)), user.getId());
     }
 
     @Override
-    public void addEvent(Integer userId, Integer entityId, String eventType, String operation){
+    public void addEvent(Integer userId, Integer entityId, String eventType, String operation) {
         String sql = "insert into EVENTS (USER_ID,ENTITY_ID,EVENT_TYPE,OPERATION,TIMESTAMP) values (?,?,?,?,?)";
         jdbcTemplate.update(sql,
                 userId,
@@ -109,7 +110,7 @@ public class UserDbStorage implements UserStorage {
             stmt.setString(4, user.getName());
             return stmt;
         }, keyHolder);
-        user.setId(keyHolder.getKey().intValue());
+        user.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         log.debug("Сохранен пользователь {}", user.getName());
         return user;
     }

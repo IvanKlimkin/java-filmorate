@@ -25,5 +25,4 @@ public class User {
     @PastOrPresent(message = "День рождения должен быть раньше текущей даты")
     private LocalDate birthday;
     private String name;
-
 }
