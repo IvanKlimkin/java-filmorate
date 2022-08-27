@@ -12,7 +12,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.function.Function;
 
 @Slf4j
 @Component
@@ -43,33 +42,13 @@ public class LikeStorage {
     }
 
     public List<Film> getAllSortedFilms(Integer count) {
-        String sql = "select F.*, MPA_NAME from FILMS as F left join LIKES as L on F.FILM_ID=L.FILM_ID " +
-                "JOIN MPA M on M.MPA_ID = F.MPA_ID" +
-                " group by F.FILM_ID ORDER BY (AVG(RATING), COUNT(L.USER_LIKED_ID)) DESC LIMIT ?"; //, COUNT(L.USER_LIKED_ID)
+        String sql = "select F.*, MPA_NAME from FILMS as F " +
+                "JOIN MPA M on M.MPA_ID = F.MPA_ID " +
+                "ORDER BY (RATING, " +
+                "COUNT_POSITIVE, " +
+                "COUNT_NEGATIVE) DESC" +
+                " LIMIT ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> FilmDbStorage.makeFilm(rs), count);
-    }
-
-    /**
-     * Получить экземпляр jdbcTemplate
-     *
-     * @return JdbcTemplate - возвращает экземпляр JdbcTemplate
-     */
-    public JdbcTemplate getJdbcTemplate() {
-        return jdbcTemplate;
-    }
-
-    /**
-     * Обобщённый метод фильтрации или сортировки или того и другого
-     *
-     * @param function  - функция, которая выполняет фильтрацию и/или сортировку
-     * @param parameter - в случае фильтрации параметр по которому происходит фильтрация
-     *                  - в случае сортировки сортируемая группа объектов
-     * @param <T>       - тип передаваемого значения
-     * @param <R>       - тип возвращаемого значения
-     * @return -
-     */
-    public <T, R> R sortingOrFiltering(Function<T, R> function, T parameter) {
-        return function.apply(parameter);
     }
 
     public List<Integer> findRecommendedFilmIds(int userId) {

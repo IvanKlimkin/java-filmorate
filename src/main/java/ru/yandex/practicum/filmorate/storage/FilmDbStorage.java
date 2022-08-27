@@ -43,7 +43,11 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getAllFilms() {
-        String sql = "select FILMS.*,MPA_NAME from FILMS join MPA M on M.MPA_ID = FILMS.MPA_ID ORDER BY RATING DESC";
+        String sql = "select FILMS.*,MPA_NAME from FILMS " +
+                "join MPA M on M.MPA_ID = FILMS.MPA_ID " +
+                "ORDER BY (RATING, " +
+                "COUNT_POSITIVE, " +
+                "COUNT_NEGATIVE) DESC";
         return jdbcTemplate.query(sql, ((rs, rowNum) -> makeFilm(rs)));
     }
 
@@ -51,13 +55,23 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getSortedFilms(Director director, String sort) {
         String sql;
         if (sort.equals("year")) {
-            sql = "select FILMS.*, MPA_NAME from FILMS join MPA M on FILMS.MPA_ID = M.MPA_ID" +
-                    " join FILM_DIRECTOR FD on FILMS.FILM_ID = FD.FILM_ID where FD.DIRECTOR_ID =? ORDER BY RATING DESC";
+            sql = "select FILMS.*, MPA_NAME from FILMS " +
+                    "join MPA M on FILMS.MPA_ID = M.MPA_ID " +
+                    "join FILM_DIRECTOR FD on FILMS.FILM_ID = FD.FILM_ID " +
+                    "where FD.DIRECTOR_ID =? " +
+                    "group by FILMS.FILM_ID " +
+                    "ORDER BY (avg(RATING), " +
+                    "avg(COUNT_POSITIVE), " +
+                    "avg(COUNT_NEGATIVE)) DESC";
         } else {
-            sql = "select FILMS.*,MPA_NAME from FILMS join MPA M on FILMS.MPA_ID = M.MPA_ID" +
-                    " left join LIKES L on FILMS.FILM_ID = L.FILM_ID " +
-                    "join FILM_DIRECTOR FD on FILMS.FILM_ID = FD.FILM_ID" +
-                    " where FD.DIRECTOR_ID=? group by FILMS.FILM_ID ORDER BY (AVG(RATING), COUNT(L.USER_LIKED_ID)) DESC";
+            sql = "select FILMS.*,MPA_NAME from FILMS " +
+                    "join MPA M on FILMS.MPA_ID = M.MPA_ID " +
+                    "join FILM_DIRECTOR FD on FILMS.FILM_ID = FD.FILM_ID " +
+                    "where FD.DIRECTOR_ID=? " +
+                    "group by FILMS.FILM_ID " +
+                    "ORDER BY (avg(RATING), " +
+                    "avg(COUNT_POSITIVE), " +
+                    "avg(COUNT_NEGATIVE)) DESC";
         }
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), director.getId());
     }
@@ -139,43 +153,40 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> filmList = new ArrayList<>();
         String sql;
         if (params.contains("title") && params.contains("director")) {
-            sql = "select f.FILM_ID, f.NAME, f.DESCRIPTION, " +
-                    "f.RELEASE_DATE, f.DURATION, f.MPA_ID, f.RATING, f.COUNT_POSITIVE, f.COUNT_NEGATIVE, m.MPA_NAME " +
+            sql = "select f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.MPA_ID, f.RATING, " +
+                    "f.COUNT_POSITIVE, f.COUNT_NEGATIVE, m.MPA_NAME " +
                     "from FILMS f " +
                     "join MPA m on m.MPA_ID = f.MPA_ID " +
                     "left join FILM_DIRECTOR fd on fd.FILM_ID = f.FILM_ID " +
                     "left join DIRECTORS d on fd.DIRECTOR_ID = d.DIRECTOR_ID " +
-                    "left join " +
-                    "(select FILM_ID, count(USER_LIKED_ID) evaluate " +
-                    "from LIKES group by FILM_ID) e on f.FILM_ID = e.FILM_ID " +
                     "where (lower(d.DIRECTOR_NAME) like '%' || lower(?) || '%' " +
                     "or lower(f.NAME) like '%' || lower(?) || '%') " +
-                    "ORDER BY RATING, e.evaluate DESC";
+                    "ORDER BY (RATING, " +
+                    "COUNT_POSITIVE, " +
+                    "COUNT_NEGATIVE) DESC";
             filmList = jdbcTemplate.query(sql, ((rs, rowNum) -> makeFilm(rs)), lowerQuery, lowerQuery);
         } else if (params.equals("director")) {
-            sql = "select f.FILM_ID, f.NAME, f.DESCRIPTION, " +
-                    "f.RELEASE_DATE, f.DURATION, f.MPA_ID, f.RATING, f.COUNT_POSITIVE, f.COUNT_NEGATIVE, m.MPA_NAME " +
+            sql = "select f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.MPA_ID, f.RATING, " +
+                    "f.COUNT_POSITIVE, f.COUNT_NEGATIVE, m.MPA_NAME " +
                     "from FILMS f " +
                     "left join FILM_DIRECTOR fd on fd.FILM_ID = f.FILM_ID " +
                     "left join DIRECTORS d on fd.DIRECTOR_ID = d.DIRECTOR_ID " +
                     "join MPA m on m.MPA_ID = f.MPA_ID " +
-                    "left join " +
-                    "(select FILM_ID, count(USER_LIKED_ID) evaluate " +
-                    "from LIKES group by FILM_ID) e on f.FILM_ID = e.FILM_ID " +
                     "where lower(d.DIRECTOR_NAME) like '%' || lower(?) || '%' " +
-                    "ORDER BY RATING, e.evaluate DESC";
+                    "ORDER BY (RATING, " +
+                    "COUNT_POSITIVE, " +
+                    "COUNT_NEGATIVE) DESC";
             filmList = jdbcTemplate.query(sql, ((rs, rowNum) -> makeFilm(rs)), lowerQuery);
         } else if (params.equals("title")) {
-            sql = "select f.FILM_ID, f.NAME, f.DESCRIPTION, " +
-                    "f.RELEASE_DATE, f.DURATION, f.MPA_ID, f.RATING, f.COUNT_POSITIVE, f.COUNT_NEGATIVE, m.MPA_NAME " +
+            sql = "select f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.MPA_ID, f.RATING, " +
+                    "f.COUNT_POSITIVE, f.COUNT_NEGATIVE, m.MPA_NAME " +
                     "from FILMS f " +
                     "join MPA m on m.MPA_ID = f.MPA_ID " +
                     "left join FILM_DIRECTOR fd on fd.FILM_ID = f.FILM_ID " +
-                    "left join " +
-                    "(select FILM_ID, count(user_liked_id) evaluate " +
-                    "from LIKES group by FILM_ID) e on f.FILM_ID = e.FILM_ID " +
                     "where lower(f.NAME) like '%' || lower(?) || '%' " +
-                    "ORDER BY RATING, e.evaluate DESC";
+                    "ORDER BY (RATING, " +
+                    "COUNT_POSITIVE, " +
+                    "COUNT_NEGATIVE) DESC";
             filmList = jdbcTemplate.query(sql, ((rs, rowNum) -> makeFilm(rs)), lowerQuery);
         }
         return filmList;
@@ -183,33 +194,53 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getMostPopularFilmsByYear(int year, int limit) {
-        String sql = "select * from FILMS F join MPA M on F.MPA_ID = M.MPA_ID " +
-                "left join LIKES L ON F.FILM_ID = L.FILM_ID " +
+        String sql = "select * from FILMS F " +
+                "join MPA M on F.MPA_ID = M.MPA_ID " +
                 "where YEAR(F.RELEASE_DATE) = ? " +
-                "group by F.FILM_ID, L.USER_LIKED_ID " +
-                "ORDER BY (AVG(RATING), COUNT(L.USER_LIKED_ID)) DESC limit ?";
+                "ORDER BY (RATING, " +
+                "COUNT_POSITIVE, " +
+                "COUNT_NEGATIVE) DESC " +
+                "limit ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), year, limit);
     }
 
     @Override
     public List<Film> getMostPopularFilmsByGenre(int genreId, int limit) {
-        String sql = "select * from FILMS F join MPA M on F.MPA_ID = M.MPA_ID " +
-                "left join LIKES L ON F.FILM_ID = L.FILM_ID " +
+        String sql = "select * from FILMS F " +
+                "join MPA M on F.MPA_ID = M.MPA_ID " +
                 "left join FILM_GENRE FG ON F.FILM_ID = FG.FILM_ID " +
                 "where FG.GENRE_ID = ? " +
-                "group by F.FILM_ID, L.USER_LIKED_ID, FG.GENRE_ID " +
-                "ORDER BY (AVG(RATING), COUNT(L.USER_LIKED_ID)) DESC limit ?";
+                "group by F.FILM_ID, FG.GENRE_ID " +
+                "ORDER BY (avg(RATING), " +
+                "avg(COUNT_POSITIVE), " +
+                "avg(COUNT_NEGATIVE)) DESC " +
+                "limit ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), genreId, limit);
     }
 
     @Override
     public List<Film> getMostPopularFilmsByGenreAndYear(int genreId, int year, int limit) {
-        String sql = "select * from FILMS F join MPA M on F.MPA_ID = M.MPA_ID " +
-                "left join LIKES L ON F.FILM_ID = L.FILM_ID " +
+        String sql = "select * from FILMS F " +
+                "join MPA M on F.MPA_ID = M.MPA_ID " +
                 "left join FILM_GENRE FG ON F.FILM_ID = FG.FILM_ID " +
                 "where FG.GENRE_ID = ? AND YEAR(F.RELEASE_DATE) = ? " +
-                "group by F.FILM_ID, L.USER_LIKED_ID " +
-                "ORDER BY (AVG(RATING), COUNT(L.USER_LIKED_ID)) DESC limit ?";
+                "group by F.FILM_ID " +
+                "ORDER BY (avg(RATING), " +
+                "avg(COUNT_POSITIVE), " +
+                "avg(COUNT_NEGATIVE)) DESC " +
+                "limit ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), genreId, year, limit);
+    }
+
+    @Override
+    public List<Film> getSharedFilmsWithFriend(int userId, int friendId) {
+        String sql = "select * from FILMS F " +
+                "join MPA M on F.MPA_ID = M.MPA_ID " +
+                "left join LIKES L on F.FILM_ID = L.FILM_ID " +
+                "where (L.USER_LIKED_ID = ? and L.USER_LIKED_ID = ?) " +
+                "ORDER BY (RATING, " +
+                "COUNT_POSITIVE, " +
+                "COUNT_NEGATIVE) DESC";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), userId, friendId);
     }
 }
